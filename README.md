@@ -30,6 +30,7 @@ To get a local copy of this practice build up and running, follow these simple s
 
 You will need a local development environment capable of serving HTML files (like the VS Code **Live Server** extension) or a basic Node.js setup.
 
-### Installation & Setup
+### website working video
+https://github.com/user-attachments/assets/e5b57429-4627-406c-9597-97eb9b695f57
 
 
