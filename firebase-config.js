@@ -1,0 +1,26 @@
+const defaultFirebaseConfig = {
+    apiKey: "REPLACE_WITH_YOUR_API_KEY",
+    authDomain: "REPLACE_WITH_YOUR_AUTH_DOMAIN",
+    projectId: "REPLACE_WITH_YOUR_PROJECT_ID",
+    storageBucket: "REPLACE_WITH_YOUR_STORAGE_BUCKET",
+    messagingSenderId: "REPLACE_WITH_YOUR_MESSAGING_SENDER_ID",
+    appId: "REPLACE_WITH_YOUR_APP_ID",
+    measurementId: "REPLACE_WITH_YOUR_MEASUREMENT_ID",
+};
+
+let firebaseConfig = defaultFirebaseConfig;
+
+try {
+    const localConfig = await import('./firebase-config.local.js');
+    if (localConfig?.firebaseConfig) {
+        firebaseConfig = localConfig.firebaseConfig;
+    } else {
+        console.warn('firebase-config.local.js loaded but no firebaseConfig export was found.');
+    }
+} catch (err) {
+    if (!/Cannot find module/.test(err.message)) {
+        console.warn('Could not load firebase-config.local.js:', err);
+    }
+}
+
+export { firebaseConfig };

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payment - TalentTrade</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body class="auth-page">
+    <div class="auth-container">
+        <div class="auth-bg-gradient"></div>
+        <div class="auth-content">
+            <div class="auth-header">
+                <a href="index.html" class="brand-link">
+                    <div class="brand-mark-small">TT</div>
+                    <div>
+                        <span class="brand-name">TalentTrade</span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="auth-card glassmorphism">
+                <div class="auth-card-header">
+                    <h1>Payment Details</h1>
+                    <p>Enter UPI and shipping information to complete your order.</p>
+                </div>
+
+                <form id="paymentForm" class="space-y-6">
+                    <div class="glass-card p-6 rounded-2xl bg-surface-container-low">
+                        <h2 class="font-headline-sm mb-3">Order Summary</h2>
+                        <div id="paymentProduct" class="space-y-3"></div>
+                        <div class="checkout-total mt-4 flex justify-between items-center font-bold text-on-surface">
+                            <span>Total</span>
+                            <span id="paymentTotal">$0.00</span>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-6 rounded-2xl bg-surface-container-low">
+                        <h2 class="font-headline-sm mb-3">UPI Payment</h2>
+                        <label class="form-label">UPI ID</label>
+                        <input id="upiId" type="text" class="form-input" placeholder="example@bank" required />
+                        <label class="form-label">Payment Notes</label>
+                        <input id="upiNotes" type="text" class="form-input" placeholder="Order payment for TalentTrade" />
+                    </div>
+
+                    <div class="glass-card p-6 rounded-2xl bg-surface-container-low">
+                        <h2 class="font-headline-sm mb-3">Shipping Address</h2>
+                        <label class="form-label">Full Address</label>
+                        <textarea id="addressText" class="form-input" rows="4" placeholder="Enter your full address" required></textarea>
+                        <label class="form-label">Pincode</label>
+                        <input id="pincode" type="text" class="form-input" placeholder="560001" required />
+                        <button id="applyAddressBtn" type="button" class="auth-btn secondary-btn w-full">Apply</button>
+                    </div>
+
+                    
+
+                    <button id="submitPaymentBtn" type="submit" class="auth-btn primary-btn w-full">Submit Payment</button>
+                </form>
+            </div>
+
+            <div class="auth-footer-text">
+                <p>&copy; 2026 TalentTrade. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const params = new URLSearchParams(window.location.search);
+            const productId = params.get('productId');
+            const currentUser = TalentTrade.auth.getCurrentUser();
+
+            if (!currentUser) {
+                window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.href);
+                return;
+            }
+
+            if (!productId) {
+                document.getElementById('paymentProduct').innerHTML = '<p class="text-on-surface-variant">No product selected for payment.</p>';
+                return;
+            }
+
+            const product = TalentTrade.products.getById(productId);
+            if (!product) {
+                document.getElementById('paymentProduct').innerHTML = '<p class="text-on-surface-variant">Selected item not found.</p>';
+                return;
+            }
+
+            document.getElementById('paymentProduct').innerHTML = `
+                <div class="flex gap-4 items-center">
+                    <img src="${product.image || product.imageUrl || placeholderDataUrl(120, 120, 'No Image')}" alt="${product.title}" class="w-24 h-24 rounded-2xl object-cover" />
+                    <div>
+                        <p class="font-bold text-on-surface">${product.title}</p>
+                        <p class="text-on-surface-variant">${product.creator}</p>
+                        <p class="mt-3 text-primary font-semibold">$${product.price}</p>
+                    </div>
+                </div>
+            `;
+            document.getElementById('paymentTotal').textContent = `$${product.price.toFixed(2)}`;
+            // product price is shown in order summary
+
+            document.getElementById('applyAddressBtn').addEventListener('click', function() {
+                const address = document.getElementById('addressText').value.trim();
+                const pincode = document.getElementById('pincode').value.trim();
+
+                if (!address || !pincode) {
+                    alert('Please enter both address and pincode before applying.');
+                    return;
+                }
+
+                alert('Address and pincode applied successfully.');
+            });
+
+            document.getElementById('paymentForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const upiId = document.getElementById('upiId').value.trim();
+                const upiNotes = document.getElementById('upiNotes').value.trim();
+                const address = document.getElementById('addressText').value.trim();
+                const pincode = document.getElementById('pincode').value.trim();
+
+                if (!upiId || !address || !pincode) {
+                    alert('Please complete UPI and shipping details before submitting.');
+                    return;
+                }
+
+                const order = {
+                    id: 'order-' + Date.now(),
+                    productId: product.id,
+                    buyerId: currentUser.id || currentUser.uid,
+                    buyerName: currentUser.fullName || currentUser.username || currentUser.email || 'Buyer',
+                    sellerId: product.creatorId || product.userId || null,
+                    sellerName: product.creator || 'Seller',
+                    amount: product.price,
+                    upiId: upiId,
+                    upiNotes: upiNotes,
+                    address: address,
+                    pincode: pincode,
+                    status: 'paid',
+                    createdAt: new Date().toISOString()
+                };
+
+                TalentTrade.orders.saveOrder(order);
+                TalentTrade.cart.removeItem(product.id);
+
+                alert('Payment submitted! Owner dashboard has been updated with the purchase details.');
+                window.location.href = 'dashboard.html#listings';
+            });
+        });
+    </script>
+</body>
+</html>

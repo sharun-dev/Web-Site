@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat - TalentTrade</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="chat-header-info">
+                <button class="chat-back-btn" id="chatBackBtn">← Back</button>
+                <div>
+                    <h3 id="chatCreatorName">Creator Name</h3>
+                    <p id="chatCreatorStatus">Online</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Item Display Section -->
+        <div class="chat-item-section" id="chatItemSection" style="display: none;">
+            <div class="chat-item-card">
+                <img id="itemImage" src="" alt="Item Image" class="chat-item-image" />
+                <div class="chat-item-info">
+                    <h4 id="itemTitle"></h4>
+                    <p id="itemCategory" class="item-category"></p>
+                    <p id="itemPrice" class="item-price"></p>
+                    <p id="itemType" class="item-type"></p>
+                    <p id="itemDescription" class="item-description"></p>
+                    <span id="itemStatus" class="item-status"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+            <div class="empty-chat">
+                <span>💬</span>
+                <span>Start a conversation regarding your marketplace order...</span>
+            </div>
+        </div>
+
+        <div class="chat-footer">
+            <div class="chat-input-wrapper">
+                <input 
+                    type="text" 
+                    id="messageInput" 
+                    class="chat-input" 
+                    placeholder="Type a message..." 
+                    autocomplete="off"
+                />
+                <button id="sendBtn" class="chat-send-btn" title="Send message" disabled>📤</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js';
+        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc, setDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js';
+        import { firebaseConfig } from './firebase-config.js';
+
+        // Initialize Firebase
+        let db = null;
+        let useLocalStorage = false;
+        try {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            console.log('✓ Firebase initialized for chat');
+        } catch (e) {
+            console.warn("Firebase initialization failed, using localStorage fallback:", e);
+            useLocalStorage = true;
+        }
+
+        // Context state variables
+        let currentCreator = "RenderLab"; 
+        let currentCreatorId = null;
+        let currentUser = "";
+        let currentBuyerName = "Buyer";
+        let chatRoomId = "";
+        let unsubscribe = null;
+        let currentListing = null;
+
+        // Dom Elements
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const chatMessages = document.getElementById('chatMessages');
+
+        // 1. Initialize Chat Metadata Context safely
+        function initializeChatContext() {
+            try {
+                const context = sessionStorage.getItem('chatContext');
+                if (context) {
+                    const data = JSON.parse(context);
+                    currentCreator = data.creator || currentCreator;
+                    currentCreatorId = data.creatorId || null;
+                    currentUser = data.userId || `user-${Math.floor(1000 + Math.random() * 9000)}`;
+                    currentBuyerName = data.userName || currentBuyerName;
+                    chatRoomId = data.chatRoomId || `chat-${currentUser}-${currentCreator.replace(/\s+/g, '')}`;
+                    currentListing = data.listing || null;
+                } else {
+                    // Fallback management
+                    currentUser = currentUser || `user-${Math.floor(1000 + Math.random() * 9000)}`;
+                    chatRoomId = `chat-${currentUser}-${currentCreator.replace(/\s+/g, '')}`;
+                    console.warn('No chat context found in sessionStorage, structural fallbacks generated');
+                }
+                document.getElementById('chatCreatorName').textContent = currentCreator;
+                
+                // Display listing item if available
+                if (currentListing) {
+                    displayListingItem();
+                }
+                
+                console.log('Chat Context Verified:', { currentCreator, currentUser, chatRoomId, listing: currentListing });
+            } catch(err) {
+                console.error("Context gathering failed:", err);
+                document.getElementById('chatCreatorName').textContent = currentCreator;
+            }
+        }
+
+        // Display listing item details
+        function displayListingItem() {
+            if (!currentListing) return;
+
+            function placeholderDataUrl(w = 300, h = 200, text = 'No Image') {
+                const fontSize = Math.max(12, Math.floor(w / 20));
+                const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="100%" height="100%" fill="#0b1326"/><text x="50%" y="50%" fill="#cbd5e1" font-family="Arial, Helvetica, sans-serif" font-size="${fontSize}" text-anchor="middle" dominant-baseline="middle">${text}</text></svg>`;
+                return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+            }
+
+            const itemSection = document.getElementById('chatItemSection');
+            document.getElementById('itemTitle').textContent = currentListing.title;
+            document.getElementById('itemCategory').textContent = currentListing.category;
+            document.getElementById('itemPrice').textContent = `$${currentListing.price.toFixed(2)}`;
+            document.getElementById('itemType').textContent = currentListing.type;
+            document.getElementById('itemDescription').textContent = currentListing.description;
+            document.getElementById('itemImage').src = currentListing.imageUrl && !String(currentListing.imageUrl).includes('via.placeholder.com') ? currentListing.imageUrl : placeholderDataUrl(300,200,'No Image');
+            document.getElementById('itemImage').onerror = function() { this.onerror = null; this.src = placeholderDataUrl(300,200,'No Image'); };
+            document.getElementById('itemStatus').textContent = currentListing.status.toUpperCase();
+            document.getElementById('itemStatus').className = `item-status ${currentListing.status === 'sold' ? 'status-sold' : 'status-active'}`;
+
+            itemSection.style.display = 'block';
+        }
+
+        // 2. Ensure chat room exists inside database safely
+        async function ensureChatRoomExists() {
+            if (!db) return false;
+            try {
+                const chatRoomRef = doc(db, 'chats', chatRoomId);
+                const chatSnapshot = await getDoc(chatRoomRef);
+
+                if (!chatSnapshot.exists()) {
+                    await setDoc(chatRoomRef, {
+                        participants: [currentUser, currentCreator],
+                        createdAt: serverTimestamp(),
+                        lastMessage: "",
+                        lastMessageTime: serverTimestamp(),
+                    });
+                    console.log('✓ Chat room verified & registered:', chatRoomId);
+                }
+                return true;
+            } catch (error) {
+                console.error('✗ Error ensuring room collection:', error);
+                return false;
+            }
+        }
+
+        // 3. Storing dynamic documents logic
+        async function sendMessage(text) {
+            if (!text.trim()) {
+                alert('Please type a message');
+                return false;
+            }
+
+            // UI feedback processing initialization
+            sendBtn.disabled = true;
+            messageInput.disabled = true;
+
+            try {
+                if (useLocalStorage) {
+                    // Store message in localStorage
+                    const chatKey = `chat_${chatRoomId}`;
+                    const message = {
+                        id: 'msg-' + Date.now(),
+                        sender: currentUser,
+                        senderId: currentUser,
+                        senderName: currentBuyerName,
+                        senderRole: 'buyer',
+                        text: text.trim(),
+                        timestamp: new Date().toISOString(),
+                        isRead: false
+                    };
+                    const chats = JSON.parse(localStorage.getItem(chatKey) || '[]');
+                    chats.push(message);
+                    localStorage.setItem(chatKey, JSON.stringify(chats));
+                    console.log('✓ Message saved to localStorage');
+                    saveBuyerMessageToOwnerListing(message);
+                    messageInput.value = '';
+                    messageInput.focus();
+                    loadMessagesFromLocalStorage();
+                    return true;
+                } else if (db) {
+                    // Use Firebase
+                    const roomReady = await ensureChatRoomExists();
+                    if (!roomReady) throw new Error("Could not initialize chat room container database reference.");
+
+                    const messagesRef = collection(db, 'chats', chatRoomId, 'messages');
+                    
+                    // Add message document
+                    const firebaseMessage = {
+                        id: 'msg-' + Date.now(),
+                        sender: currentUser,
+                        senderName: 'You',
+                        senderId: currentUser,
+                        senderRole: 'buyer',
+                        text: text.trim(),
+                        timestamp: new Date().toISOString(),
+                        isRead: false,
+                    };
+
+                    await addDoc(messagesRef, {
+                        sender: firebaseMessage.sender,
+                        senderName: firebaseMessage.senderName,
+                        senderId: firebaseMessage.senderId,
+                        senderRole: firebaseMessage.senderRole,
+                        text: firebaseMessage.text,
+                        timestamp: serverTimestamp(),
+                        isRead: false,
+                    });
+
+                    // Mirror buyer message locally for dashboard listing sync and fallback access.
+                    const chatKey = `chat_${chatRoomId}`;
+                    const localChats = JSON.parse(localStorage.getItem(chatKey) || '[]');
+                    localChats.push(firebaseMessage);
+                    localStorage.setItem(chatKey, JSON.stringify(localChats));
+                    saveBuyerMessageToOwnerListing(firebaseMessage);
+
+                    // Update room metadata safely
+                    const chatRoomRef = doc(db, 'chats', chatRoomId);
+                    await updateDoc(chatRoomRef, {
+                        lastMessage: text.trim(),
+                        lastMessageTime: serverTimestamp()
+                    });
+
+                    console.log('✓ Message sent via Firebase');
+                    messageInput.value = '';
+                    messageInput.focus();
+                    return true;
+                } else {
+                    throw new Error("No messaging service available");
+                }
+            } catch (error) {
+                console.error('✗ Error sending message workflow:', error);
+                // Check if it's a Firebase permission error
+                if (error.code === 'permission-denied' || error.message.includes('permission')) {
+                    console.warn('Firebase permission denied. Switching to localStorage fallback...');
+                    useLocalStorage = true;
+                    // Retry with localStorage
+                    return sendMessage(text);
+                }
+                alert(`Failed to send message: ${error.message}`);
+                return false;
+            } finally {
+                // Return UI input capabilities back to user 
+                messageInput.disabled = false;
+                sendBtn.disabled = !messageInput.value.trim();
+            }
+        }
+
+        function saveBuyerMessageToOwnerListing(message) {
+            if (!currentListing || !currentListing.id) return;
+
+            try {
+                const users = JSON.parse(localStorage.getItem('talenttradeUsers') || '[]');
+                const owner = users.find(u =>
+                    (currentCreatorId && (u.id === currentCreatorId || u.uid === currentCreatorId)) ||
+                    u.fullName === currentCreator ||
+                    u.username === currentCreator
+                );
+                if (!owner || !owner.listings) return;
+
+                const listing = owner.listings.find(item => item.id === currentListing.id);
+                if (!listing) return;
+
+                listing.chats = listing.chats || [];
+                listing.chats.push({
+                    id: message.id,
+                    sender: message.sender,
+                    senderRole: message.senderRole || 'buyer',
+                    senderName: message.senderName || currentBuyerName,
+                    senderId: message.senderId,
+                    text: message.text,
+                    timestamp: message.timestamp
+                });
+                localStorage.setItem('talenttradeUsers', JSON.stringify(users));
+                console.log('✓ Buyer message synced to owner listing chat');
+            } catch (err) {
+                console.warn('Unable to sync buyer message to owner listing:', err);
+            }
+        }
+
+        // Load messages from localStorage
+        function loadMessagesFromLocalStorage() {
+            const localMessages = getLocalChatMessages();
+            renderChatMessages(localMessages);
+        }
+
+        function getLocalChatMessages() {
+            const chatKey = `chat_${chatRoomId}`;
+            return JSON.parse(localStorage.getItem(chatKey) || '[]');
+        }
+
+        function renderChatMessages(messages) {
+            if (!messages || messages.length === 0) {
+                chatMessages.innerHTML = `
+                    <div class="empty-chat">
+                        <span>💬</span>
+                        <span>Start a conversation regarding your marketplace order...</span>
+                    </div>`;
+                return;
+            }
+
+            chatMessages.innerHTML = '';
+            messages.forEach((msg) => {
+                const isSent = msg.sender === currentUser || msg.senderId === currentUser;
+                const senderRole = msg.senderRole || (msg.sender === currentUser ? 'buyer' : 'seller');
+                const senderName = isSent ? 'You' : (msg.senderName || (senderRole === 'seller' ? currentCreator : currentBuyerName));
+                let timestamp = 'Sending...';
+                if (msg.timestamp) {
+                    const dateObj = msg.timestamp.toDate ? msg.timestamp.toDate() : new Date(msg.timestamp);
+                    timestamp = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                }
+
+                const messageEl = document.createElement('div');
+                messageEl.className = `chat-message ${isSent ? 'sent' : 'received'}`;
+                messageEl.innerHTML = `
+                    <div class="chat-bubble-wrapper">
+                        <div class="chat-meta">
+                            <span class="chat-author">${escapeHtml(senderName)}</span>
+                            <span class="chat-timestamp">${timestamp}</span>
+                        </div>
+                        <div class="chat-bubble">${escapeHtml(msg.text)}</div>
+                    </div>
+                `;
+                chatMessages.appendChild(messageEl);
+            });
+
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // 4. Live Sync Data Stream Subscriptions
+        async function subscribeToMessages() {
+            if (useLocalStorage) {
+                // Use localStorage fallback
+                loadMessagesFromLocalStorage();
+                // Refresh every 1 second for localStorage
+                setInterval(loadMessagesFromLocalStorage, 1000);
+                return;
+            }
+
+            if (!db) {
+                console.warn('No database available for subscriptions');
+                loadMessagesFromLocalStorage();
+                return;
+            }
+
+            try {
+                await ensureChatRoomExists();
+
+                const messagesRef = collection(db, 'chats', chatRoomId, 'messages');
+                const q = query(messagesRef, orderBy('timestamp', 'asc'));
+
+                unsubscribe = onSnapshot(q, (snapshot) => {
+                    const serverMessages = [];
+                    snapshot.forEach((doc) => {
+                        const msg = doc.data();
+                        serverMessages.push({
+                            id: doc.id,
+                            sender: msg.sender,
+                            senderId: msg.senderId || msg.sender,
+                            senderName: msg.senderName || '',
+                            senderRole: msg.senderRole || (msg.sender === currentUser ? 'buyer' : 'seller'),
+                            text: msg.text,
+                            timestamp: msg.timestamp
+                        });
+                    });
+
+                    const localMessages = getLocalChatMessages();
+                    const combined = [...serverMessages];
+
+                    localMessages.forEach(localMsg => {
+                        if (!combined.some(remote => remote.id === localMsg.id)) {
+                            combined.push(localMsg);
+                        }
+                    });
+
+                    if (combined.length === 0) {
+                        chatMessages.innerHTML = `
+                            <div class="empty-chat">
+                                <span>💬</span>
+                                <span>Start a conversation regarding your marketplace order...</span>
+                            </div>`;
+                        return;
+                    }
+
+                    combined.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+                    renderChatMessages(combined);
+                }, (error) => {
+                    console.error('Snapshot runtime error wrapper:', error);
+                    if (error.code === 'permission-denied' || error.message.includes('permission')) {
+                        console.warn('Firebase permission denied in subscriptions. Switching to localStorage fallback...');
+                        useLocalStorage = true;
+                        subscribeToMessages();
+                    }
+                });
+            } catch(e) {
+                console.error('Subscription system initial failure:', e);
+                if (e.code === 'permission-denied' || e.message.includes('permission')) {
+                    console.warn('Firebase permission denied. Switching to localStorage fallback...');
+                    useLocalStorage = true;
+                    subscribeToMessages();
+                } else {
+                    useLocalStorage = true;
+                    subscribeToMessages();
+                }
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // --- Event Handlers & Core Interface Controls ---
+        messageInput.addEventListener('input', () => {
+            sendBtn.disabled = !messageInput.value.trim();
+        });
+
+        sendBtn.addEventListener('click', () => {
+            sendMessage(messageInput.value);
+        });
+
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey && !sendBtn.disabled) {
+                e.preventDefault();
+                sendMessage(messageInput.value);
+            }
+        });
+
+        document.getElementById('chatBackBtn').addEventListener('click', () => {
+            if (unsubscribe) unsubscribe();
+            window.history.back();
+        });
+
+        window.addEventListener('beforeunload', () => {
+            if (unsubscribe) unsubscribe();
+        });
+
+        // Lifecycle Entry execution
+        initializeChatContext();
+        subscribeToMessages();
+    </script>
+</body>
+</html>

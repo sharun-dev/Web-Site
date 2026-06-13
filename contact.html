@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contact - TalentTrade Marketplace</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="main-nav">
+        <div class="brand" id="brandLogo">
+            <div class="brand-mark">TT</div>
+            <div>
+                <span class="brand-name">TalentTrade</span>
+                <span class="brand-subtitle">Sell. Rent. Share.</span>
+            </div>
+        </div>
+
+        <div class="nav-links top-nav-tabs">
+            <a href="index.html" class="nav-link nav-tab">Home</a>
+            <a href="index.html" class="nav-link nav-tab">Browse</a>
+            <a href="index.html#upload" class="nav-link nav-tab">Sell / Upload</a>
+            <a href="contact.html" class="nav-link nav-tab active">Contact</a>
+        </div>
+
+        <div class="nav-actions">
+            <a class="profile-btn" href="login.html" id="loginNavBtn">Login</a>
+            <a class="profile-btn secondary-btn" href="register.html" id="registerNavBtn">Register</a>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="contact-hero">
+            <div class="contact-hero-content">
+                <h1>Get In Touch</h1>
+                <p>We'd love to hear from you. Send us a message and we'll respond as soon as possible.</p>
+            </div>
+        </section>
+
+        <!-- Contact Content -->
+        <section class="contact-section">
+            <div class="contact-container">
+                <!-- Contact Form -->
+                <div class="contact-form-wrapper">
+                    <div class="section-header">
+                        <h2>Send us a message</h2>
+                        <p>Fill out the form below and we'll get back to you shortly.</p>
+                    </div>
+
+                    <form id="contactForm" class="contact-form">
+                        <!-- Name Field -->
+                        <div class="form-group">
+                            <label for="name" class="form-label">Your Name</label>
+                            <input 
+                                type="text" 
+                                id="name" 
+                                name="name" 
+                                class="form-input" 
+                                placeholder="John Doe"
+                                required
+                            />
+                            <span class="form-error" id="nameError"></span>
+                        </div>
+
+                        <!-- Email Field -->
+                        <div class="form-group">
+                            <label for="contactEmail" class="form-label">Email Address</label>
+                            <input 
+                                type="email" 
+                                id="contactEmail" 
+                                name="email" 
+                                class="form-input" 
+                                placeholder="you@example.com"
+                                required
+                            />
+                            <span class="form-error" id="emailError"></span>
+                        </div>
+
+                        <!-- Subject Field -->
+                        <div class="form-group">
+                            <label for="subject" class="form-label">Subject</label>
+                            <select id="subject" name="subject" class="form-input" required>
+                                <option value="">Select a subject</option>
+                                <option value="General Inquiry">General Inquiry</option>
+                                <option value="Support">Support</option>
+                                <option value="Partnership">Partnership</option>
+                                <option value="Feedback">Feedback</option>
+                                <option value="Bug Report">Bug Report</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <span class="form-error" id="subjectError"></span>
+                        </div>
+
+                        <!-- Message Field -->
+                        <div class="form-group">
+                            <label for="message" class="form-label">Message</label>
+                            <textarea 
+                                id="message" 
+                                name="message" 
+                                class="form-input" 
+                                rows="6"
+                                placeholder="Tell us what's on your mind..."
+                                required
+                            ></textarea>
+                            <span class="form-error" id="messageError"></span>
+                        </div>
+
+                        <!-- Error and Success Messages -->
+                        <div class="alert alert-error hidden" id="contactError"></div>
+                        <div class="alert alert-success hidden" id="contactSuccess"></div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="primary-btn contact-btn">Send Message</button>
+                    </form>
+                </div>
+
+                <!-- Contact Information -->
+                <div class="contact-info-wrapper">
+                    <div class="section-header">
+                        <h2>Contact Information</h2>
+                        <p>Other ways to reach us</p>
+                    </div>
+
+                    <div class="contact-info-cards">
+                        <!-- Address -->
+                        <div class="info-card">
+                            <div class="info-icon">📍</div>
+                            <div class="info-content">
+                                <h3>Address</h3>
+                                <p>
+                                    TalentTrade Inc.<br>
+                                    123 Creative Street<br>
+                                    San Francisco, CA 94103<br>
+                                    United States
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="info-card">
+                            <div class="info-icon">📞</div>
+                            <div class="info-content">
+                                <h3>Phone</h3>
+                                <p>
+                                    <a href="tel:+1-800-555-0123">+1 (800) 555-0123</a><br>
+                                    <small>Mon-Fri, 9AM-6PM PST</small>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="info-card">
+                            <div class="info-icon">✉️</div>
+                            <div class="info-content">
+                                <h3>Email</h3>
+                                <p>
+                                    <a href="mailto:support@talenttrade.com">support@talenttrade.com</a><br>
+                                    <a href="mailto:partners@talenttrade.com">partners@talenttrade.com</a>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Social -->
+                        <div class="info-card">
+                            <div class="info-icon">🌐</div>
+                            <div class="info-content">
+                                <h3>Follow Us</h3>
+                                <div class="social-links">
+                                    <a href="#" class="social-link">Twitter</a>
+                                    <a href="#" class="social-link">Instagram</a>
+                                    <a href="#" class="social-link">LinkedIn</a>
+                                    <a href="#" class="social-link">Facebook</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="support-details-card">
+                        <div class="section-header">
+                            <h2>Support Details</h2>
+                            <p>Need help? Use the form or reach us through the options below.</p>
+                        </div>
+                        <div class="support-content">
+                            <p><strong>Support Hours:</strong> Monday – Friday, 9AM – 6PM PST</p>
+                            <p><strong>Response Time:</strong> Typically within 24 hours.</p>
+                            <p><strong>Priority Support:</strong> Select <em>Support</em> or <em>Bug Report</em> in the subject field for faster routing.</p>
+                            <p><strong>Billing Questions:</strong> Use <em>Partnership</em> or <em>General Inquiry</em>.</p>
+                        </div>
+                    </div>
+
+                    <!-- Map Placeholder -->
+                    <div class="map-placeholder">
+                        <div class="map-content">
+                            <p>📌 Map Placeholder</p>
+                            <p class="map-note">Google Maps integration would go here</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="faq-section">
+            <div class="section-header">
+                <h2>Frequently Asked Questions</h2>
+                <p>Can't find the answer? Contact our support team.</p>
+            </div>
+
+            <div class="faq-grid">
+                <div class="faq-item">
+                    <h3>How do I list an item?</h3>
+                    <p>Simply click on "Sell / Upload" in the navigation, fill in your item details, and publish. Your listing will be live immediately.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>How do I contact sellers?</h3>
+                    <p>Click on any product to view details, then click "Message Creator" to start a conversation with the seller.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>What are the payment methods?</h3>
+                    <p>We support credit cards, debit cards, PayPal, and bank transfers. All transactions are secured and encrypted.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>How long does shipping take?</h3>
+                    <p>Shipping times vary depending on your location and the seller's location. Most items ship within 2-5 business days.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>Can I return an item?</h3>
+                    <p>Yes, we have a 30-day return policy for most items. Please review our full return policy for details.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>Is TalentTrade secure?</h3>
+                    <p>Yes, we use industry-standard encryption and security protocols to protect your data and transactions.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>About TalentTrade</h4>
+                <p>The ultimate marketplace for buying, selling, and renting talent and items from passionate creators.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="index.html">Browse</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                    <li><a href="#">Privacy</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="contact.html">Contact Us</a></li>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Help Center</a></li>
+                    <li><a href="#">Terms & Conditions</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 TalentTrade. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Contact page specific functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const contactForm = document.getElementById('contactForm');
+
+            contactForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // Clear previous errors
+                document.querySelectorAll('.form-error').forEach(el => el.textContent = '');
+                document.getElementById('contactError').classList.add('hidden');
+                document.getElementById('contactSuccess').classList.add('hidden');
+
+                const name = document.getElementById('name').value.trim();
+                const email = document.getElementById('contactEmail').value.trim();
+                const subject = document.getElementById('subject').value;
+                const message = document.getElementById('message').value.trim();
+
+                // Validation
+                let isValid = true;
+
+                if (!name) {
+                    document.getElementById('nameError').textContent = 'Name is required';
+                    isValid = false;
+                } else if (name.length < 2) {
+                    document.getElementById('nameError').textContent = 'Name must be at least 2 characters';
+                    isValid = false;
+                }
+
+                if (!email) {
+                    document.getElementById('emailError').textContent = 'Email is required';
+                    isValid = false;
+                } else if (!isValidEmail(email)) {
+                    document.getElementById('emailError').textContent = 'Please enter a valid email';
+                    isValid = false;
+                }
+
+                if (!subject) {
+                    document.getElementById('subjectError').textContent = 'Please select a subject';
+                    isValid = false;
+                }
+
+                if (!message) {
+                    document.getElementById('messageError').textContent = 'Message is required';
+                    isValid = false;
+                } else if (message.length < 10) {
+                    document.getElementById('messageError').textContent = 'Message must be at least 10 characters';
+                    isValid = false;
+                }
+
+                if (!isValid) return;
+
+                // Save contact message to localStorage
+                const messages = JSON.parse(localStorage.getItem('talenttradeContactMessages')) || [];
+                messages.push({
+                    id: 'msg-' + Date.now(),
+                    name: name,
+                    email: email,
+                    subject: subject,
+                    message: message,
+                    timestamp: new Date().toISOString(),
+                    status: 'new'
+                });
+
+                localStorage.setItem('talenttradeContactMessages', JSON.stringify(messages));
+
+                // Show success message
+                document.getElementById('contactSuccess').textContent = 'Thank you for contacting us! We\'ll get back to you shortly.';
+                document.getElementById('contactSuccess').classList.remove('hidden');
+
+                // Reset form
+                contactForm.reset();
+
+                // Clear success message after 5 seconds
+                setTimeout(() => {
+                    document.getElementById('contactSuccess').style.display = 'none';
+                }, 5000);
+            });
+
+            // Brand link redirect
+            document.getElementById('brandLogo').addEventListener('click', function() {
+                window.location.href = 'index.html';
+            });
+        });
+
+        // Email validation helper
+        function isValidEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>TalentTrade | Discover Hidden Talent &amp; Rare Items</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-container": "#937dff",
+                        "on-surface": "#dae2fd",
+                        "tertiary-fixed-dim": "#ffaaf6",
+                        "on-error": "#690005",
+                        "inverse-on-surface": "#283044",
+                        "outline": "#938ea1",
+                        "secondary": "#7cd0ff",
+                        "on-primary": "#31009a",
+                        "primary-fixed": "#e6deff",
+                        "surface-container-lowest": "#060e20",
+                        "on-primary-fixed": "#1c0062",
+                        "secondary-fixed-dim": "#7cd0ff",
+                        "secondary-container": "#00a6e0",
+                        "surface-container-high": "#222a3d",
+                        "inverse-surface": "#dae2fd",
+                        "surface-tint": "#cabeff",
+                        "on-secondary-container": "#00374d",
+                        "surface-variant": "#2d3449",
+                        "error-container": "#93000a",
+                        "surface-dim": "#0b1326",
+                        "background": "#0b1326",
+                        "on-primary-container": "#2a0088",
+                        "tertiary": "#ffaaf6",
+                        "surface-container": "#171f33",
+                        "on-secondary-fixed": "#001e2c",
+                        "on-surface-variant": "#c9c4d8",
+                        "on-tertiary-container": "#4f0051",
+                        "on-tertiary": "#5b005d",
+                        "on-tertiary-fixed-variant": "#800083",
+                        "on-background": "#dae2fd",
+                        "surface-container-low": "#131b2e",
+                        "on-error-container": "#ffdad6",
+                        "on-tertiary-fixed": "#380039",
+                        "secondary-fixed": "#c4e7ff",
+                        "on-secondary-fixed-variant": "#004c69",
+                        "surface-bright": "#31394d",
+                        "tertiary-fixed": "#ffd7f6",
+                        "primary-fixed-dim": "#cabeff",
+                        "surface": "#0b1326",
+                        "primary": "#cabeff",
+                        "surface-container-highest": "#2d3449",
+                        "error": "#ffb4ab",
+                        "on-secondary": "#00354a",
+                        "outline-variant": "#484555",
+                        "inverse-primary": "#603de2",
+                        "tertiary-container": "#f03df1",
+                        "on-primary-fixed-variant": "#4717ca"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-max": "1280px",
+                        "stack-md": "1rem",
+                        "stack-lg": "2rem",
+                        "stack-sm": "0.5rem",
+                        "margin-mobile": "1rem",
+                        "margin-desktop": "2.5rem",
+                        "section-gap": "5rem",
+                        "gutter": "1.5rem"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "headline-sm": ["Plus Jakarta Sans"],
+                        "display-lg-mobile": ["Plus Jakarta Sans"],
+                        "label-md": ["Hanken Grotesk"],
+                        "body-md": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["56px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "headline-md": ["32px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                        "headline-sm": ["24px", {"lineHeight": "1.4", "fontWeight": "700"}],
+                        "display-lg-mobile": ["36px", {"lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "800"}],
+                        "label-md": ["14px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+        </script>
+        <script type="module">
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+            import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
+            import { firebaseConfig } from './firebase-config.js';
+
+            const app = initializeApp(firebaseConfig);
+            // Analytics is optional; avoid extra network fetches on pages without analytics needs.
+        </script>
+        <style>
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes floatUpDown {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-14px); }
+        }
+        @keyframes slideRightToLeft {
+            0% { opacity: 0; transform: translateX(100%); }
+            50% { opacity: 1; transform: translateX(0); }
+            100% { opacity: 0; transform: translateX(-100%); }
+        }
+        @keyframes slideRightToLeftEnter {
+            0% { opacity: 0; transform: translateX(100%); }
+            50% { opacity: 1; transform: translateX(0); }
+            100% { opacity: 0; transform: translateX(-100%); }
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+        .floating-display {
+            animation: floatUpDown 6s ease-in-out infinite;
+        }
+        .floating-display img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 2rem;
+            box-shadow: 0 40px 90px rgba(0, 0, 0, 0.35);
+        }
+        .glass-card {
+            background: rgba(23, 31, 51, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(147, 142, 161, 0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card:hover {
+            border-color: rgba(147, 125, 255, 0.5);
+            box-shadow: 0 0 20px rgba(147, 125, 255, 0.15);
+        }
+        .cart-fab {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: rgba(147, 125, 255, 0.95);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.28);
+            z-index: 70;
+            transition: transform 0.2s ease;
+        }
+        .cart-fab:hover {
+            transform: translateY(-3px);
+        }
+        .cart-count {
+            position: absolute;
+            right: -6px;
+            top: -6px;
+            min-width: 20px;
+            height: 20px;
+            border-radius: 999px;
+            background: #22c55e;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            padding: 0 6px;
+            font-weight: 700;
+        }
+        .cart-drawer {
+            position: fixed;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: min(380px, calc(100vw - 24px));
+            background: rgba(8, 16, 33, 0.96);
+            backdrop-filter: blur(24px);
+            border-left: 1px solid rgba(147, 142, 161, 0.16);
+            z-index: 65;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        .cart-drawer.open {
+            transform: translateX(0);
+        }
+        .cart-drawer-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid rgba(147, 142, 161, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+        .cart-drawer-header h2 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #f8fafc;
+        }
+        .cart-drawer-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem 1.5rem 1.5rem;
+        }
+        .cart-item {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+            align-items: center;
+        }
+        .cart-item img {
+            width: 72px;
+            height: 72px;
+            object-fit: cover;
+            border-radius: 18px;
+        }
+        .cart-item-info {
+            flex: 1;
+        }
+        .cart-item-info p {
+            margin: 0;
+            color: #cbd5e1;
+        }
+        .cart-item-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            margin-top: 0.35rem;
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+        .cart-remove-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #f8fafc;
+            padding: 0.5rem 0.75rem;
+            border-radius: 999px;
+            cursor: pointer;
+        }
+        .cart-footer {
+            padding: 1.25rem 1.5rem 1.5rem;
+            border-top: 1px solid rgba(147, 142, 161, 0.12);
+        }
+        .cart-footer button {
+            width: 100%;
+        }
+        .top-nav-tabs {
+            position: relative;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 999px;
+            padding: 0.35rem 0.5rem;
+            gap: 0.75rem;
+        }
+        .top-nav-tabs .nav-tab {
+            position: relative;
+            padding: 0.75rem 1rem;
+            border-radius: 999px;
+            color: #d3d8f0;
+            background: transparent;
+            transition: background 0.25s ease, color 0.25s ease, transform 0.25s ease;
+        }
+        .top-nav-tabs .nav-tab:hover {
+            background: rgba(147, 125, 255, 0.12);
+            color: #f8fbff;
+            transform: translateY(-1px);
+        }
+        .top-nav-tabs .nav-tab.active {
+            color: #ffffff;
+            background: rgba(147, 125, 255, 0.18);
+        }
+        .top-nav-tabs .nav-tab.active:hover {
+            background: rgba(147, 125, 255, 0.22);
+        }
+        .nav-tab-indicator {
+            position: absolute;
+            bottom: 6px;
+            left: 0;
+            height: 4px;
+            background: rgba(147, 125, 255, 0.95);
+            border-radius: 999px;
+            transition: left 0.25s ease, width 0.25s ease;
+            will-change: left, width;
+            width: 0;
+        }
+        .reveal-on-scroll {
+            opacity: 0;
+        }
+        .reveal-on-scroll.visible {
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+        .carousel-dot.active {
+            background: white;
+            width: 8px;
+            height: 8px;
+        }
+        #featuredCategoriesSection {
+            position: relative;
+            background-image: url('ch.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        #featuredCategoriesSection::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 0;
+        }
+        #featuredCategoriesSection > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .ai-chat-trigger {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            width: 56px;
+            height: 56px;
+            border-radius: 999px;
+            background: #937dff;
+            color: #ffffff;
+            border: none;
+            display: grid;
+            place-items: center;
+            box-shadow: 0 16px 32px rgba(0, 0, 0, 0.25);
+            cursor: pointer;
+            z-index: 90;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .ai-chat-trigger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.28);
+        }
+        .ai-assistant-card {
+            position: fixed;
+            right: 24px;
+            bottom: 100px;
+            width: min(420px, calc(100vw - 32px));
+            max-height: 520px;
+            background: rgba(18, 26, 44, 0.98);
+            border: 1px solid rgba(147, 125, 255, 0.25);
+            border-radius: 1.5rem;
+            box-shadow: 0 28px 80px rgba(0, 0, 0, 0.35);
+            overflow: hidden;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(24px) scale(0.98);
+            transition: opacity 0.24s ease, transform 0.24s ease, visibility 0.24s ease;
+            z-index: 88;
+            display: flex;
+            flex-direction: column;
+        }
+        .ai-assistant-card.ai-visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+        .ai-card-header {
+            padding: 1.15rem 1.25rem 0.85rem;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+        .ai-card-title {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #f8fafc;
+        }
+        .ai-card-subtitle {
+            margin: 0.35rem 0 0;
+            font-size: 0.85rem;
+            color: #cbd5e1;
+            max-width: 240px;
+        }
+        .ai-card-close {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #f8fafc;
+            border-radius: 999px;
+            width: 36px;
+            height: 36px;
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+        }
+        .ai-messages {
+            flex: 1;
+            padding: 0 1.25rem 0.75rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .ai-message {
+            max-width: 100%;
+            padding: 0.95rem 1rem;
+            border-radius: 1.25rem;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+        .ai-bot-message {
+            background: rgba(255, 255, 255, 0.08);
+            color: #e2e8f0;
+            align-self: flex-start;
+        }
+        .ai-user-message {
+            background: rgba(147, 125, 255, 0.18);
+            color: #ffffff;
+            align-self: flex-end;
+        }
+        .ai-input-row {
+            padding: 0.85rem 1rem 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            background: rgba(10, 15, 30, 0.95);
+        }
+        .ai-input-row input {
+            flex: 1;
+            min-width: 0;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.05);
+            color: #f8fafc;
+            padding: 0.95rem 1rem;
+            outline: none;
+            font-size: 0.95rem;
+        }
+        .ai-input-row input::placeholder {
+            color: rgba(226, 232, 240, 0.55);
+        }
+        .ai-send-btn {
+            border: none;
+            border-radius: 999px;
+            padding: 0.95rem 1.15rem;
+            background: #937dff;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 backdrop-blur-xl bg-surface/80 shadow-sm border-b border-outline-variant/30">
+    <div class="flex justify-between items-center px-margin-desktop py-4 max-w-container-max mx-auto">
+        <div class="flex items-center gap-8">
+            <span class="font-display-lg text-headline-sm font-black text-primary tracking-tighter cursor-pointer" id="brandLogo">TalentTrade</span>
+            <div class="hidden md:flex items-center space-x-4 top-nav-tabs">
+                <button class="font-body-md text-body-md nav-link nav-tab active" data-section="home">Home</button>
+                <button class="font-body-md text-body-md nav-link nav-tab" data-section="browse">Categories</button>
+                <button class="font-body-md text-body-md nav-link nav-tab" data-section="upload">Upload</button>
+                <a class="font-body-md text-body-md nav-link nav-tab" href="contact.html">Contact</a>
+                <span class="nav-tab-indicator" aria-hidden="true"></span>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="hidden md:flex items-center bg-surface-container-low rounded-full px-4 py-2 border border-outline-variant/30">
+                <input id="searchInput" type="search" placeholder="Search..." class="bg-transparent border-0 outline-none text-on-surface placeholder-on-surface-variant w-32 text-label-md" />
+                <button id="searchBtn" class="text-on-surface-variant hover:text-primary transition-colors ml-2">
+                    <span class="material-symbols-outlined text-sm">search</span>
+                </button>
+            </div>
+            <a class="font-label-md text-label-md px-6 py-2 rounded-full border border-primary text-primary hover:bg-primary/10 transition-all active:scale-95" href="login.html" id="loginNavBtn">Login</a>
+            <a class="font-label-md text-label-md px-6 py-2 rounded-full bg-primary-container text-on-primary-container font-bold hover:scale-105 transition-transform active:scale-95" href="register.html" id="registerNavBtn">Register</a>
+            <a class="font-label-md text-label-md px-6 py-2 rounded-full bg-primary-container text-on-primary-container font-bold hover:scale-105 transition-transform active:scale-95 hidden" href="dashboard.html" id="dashboardNavBtn">Dashboard</a>
+            <button class="font-label-md text-label-md px-6 py-2 rounded-full bg-error text-on-error font-bold hover:scale-105 transition-transform active:scale-95 hidden" id="logoutNavBtn" onclick="localStorage.removeItem('currentUser'); window.location.href='index.html';">Logout</button>
+            <!-- User display (shows after registration / login) -->
+            <div id="userDisplay" class="hidden items-center gap-3">
+                <img id="userAvatar" src="" alt="avatar" class="w-8 h-8 rounded-full object-cover" />
+                <span id="userName" class="font-label-md text-on-surface"></span>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<header class="relative min-h-screen flex items-center overflow-hidden pt-20">
+    <!-- Shader Background -->
+    <div class="absolute inset-0 w-full h-full z-0 opacity-100" style="display:block;">
+        <canvas id="shader-canvas-ANIMATION_3" style="display:block;width:100%;height:100%"></canvas>
+    </div>
+
+    <!-- Hero Content -->
+    <div class="relative z-10 max-w-container-max mx-auto px-margin-desktop w-full grid md:grid-cols-2 gap-12 items-center">
+        <div class="animate-fade-in-up">
+            <span class="font-label-md text-label-md text-secondary tracking-[0.2em] mb-4 block">MULTI-NICHE MARKETPLACE</span>
+            <h1 class="font-display-lg text-display-lg-mobile md:text-display-lg mb-6 text-on-surface">
+                Discover <span class="text-primary italic">hidden talent</span> and rare items to buy or rent.
+            </h1>
+            <p class="font-body-lg text-body-lg text-on-surface-variant mb-10 max-w-lg">
+                From custom synth patches and digital art to rare collectibles and gear—browse curated listings from the world's most passionate creators.
+            </p>
+            <div class="flex flex-wrap gap-4">
+                <button class="bg-primary-container text-on-primary-container font-bold px-8 py-4 rounded-xl text-body-lg hover:scale-105 transition-transform active:scale-95 flex items-center gap-2 nav-link" data-section="browse">
+                    Browse Categories
+                    <span class="material-symbols-outlined">explore</span>
+                </button>
+                <button class="bg-surface-container-high border border-outline-variant/30 text-on-surface font-semibold px-8 py-4 rounded-xl text-body-lg hover:bg-surface-variant transition-colors flex items-center gap-2 nav-link" data-section="upload">
+                    List an Item
+                    <span class="material-symbols-outlined">add_circle</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Featured Image Carousel -->
+        <div class="relative h-[400px] w-full hidden md:block animate-fade-in-up glass-card rounded-3xl overflow-hidden" style="animation-delay: 0.2s">
+            <div class="relative w-full h-full" id="imageCarousel">
+                <div class="carousel-slide active floating-display absolute inset-0" style="animation: slideRightToLeft 6s ease-in-out infinite;">
+                    <img src="Gemini_Generated_Image_nuxj19nuxj19nuxj (1).png" alt="Featured display 1" class="w-full h-full object-cover rounded-3xl" />
+                </div>
+                <div class="carousel-slide floating-display absolute inset-0" style="animation: slideRightToLeft 6s ease-in-out infinite; animation-delay: 3s;">
+                    <img src="Gemini_Generated_Image_rps6oqrps6oqrps6.png" alt="Featured display 2" class="w-full h-full object-cover rounded-3xl" />
+                </div>
+            </div>
+            <!-- Carousel Controls -->
+            <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 z-10">
+                <button class="carousel-dot w-2 h-2 rounded-full bg-white/60 hover:bg-white transition-all active" data-index="0" aria-label="Slide 1"></button>
+                <button class="carousel-dot w-2 h-2 rounded-full bg-white/60 hover:bg-white transition-all" data-index="1" aria-label="Slide 2"></button>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Featured Categories (Bento Style) -->
+<section id="featuredCategoriesSection" class="py-section-gap px-margin-desktop max-w-container-max mx-auto reveal-on-scroll">
+    <div class="flex justify-between items-end mb-12">
+        <div>
+            <h2 class="font-headline-md text-headline-md mb-2">Curated Verticals</h2>
+            <p class="font-body-md text-body-md text-on-surface-variant">Explore niche ecosystems built for collectors.</p>
+        </div>
+        <button class="text-secondary font-label-md flex items-center gap-2 hover:gap-3 transition-all nav-link" data-section="browse">
+            View All Categories <span class="material-symbols-outlined">arrow_forward</span>
+        </button>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-gutter">
+        <!-- Art -->
+        <div class="glass-card p-stack-md rounded-2xl flex flex-col items-center justify-center aspect-square text-center group cursor-pointer category-pill" data-category="Art">
+            <div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings: 'FILL' 1;">palette</span>
+            </div>
+            <span class="font-headline-sm text-headline-sm">Art</span>
+        </div>
+        <!-- HotWheels -->
+        <div class="glass-card p-stack-md rounded-2xl flex flex-col items-center justify-center aspect-square text-center group cursor-pointer category-pill" data-category="HotWheels">
+            <div class="w-16 h-16 bg-secondary/20 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined text-secondary text-3xl" style="font-variation-settings: 'FILL' 1;">directions_car</span>
+            </div>
+            <span class="font-headline-sm text-headline-sm">HotWheels</span>
+        </div>
+        <!-- Tech -->
+        <div class="glass-card p-stack-md rounded-2xl flex flex-col items-center justify-center aspect-square text-center group cursor-pointer category-pill" data-category="Tech">
+            <div class="w-16 h-16 bg-tertiary/20 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined text-tertiary text-3xl" style="font-variation-settings: 'FILL' 1;">terminal</span>
+            </div>
+            <span class="font-headline-sm text-headline-sm">Tech</span>
+        </div>
+        <!-- Music -->
+        <div class="glass-card p-stack-md rounded-2xl flex flex-col items-center justify-center aspect-square text-center group cursor-pointer category-pill" data-category="Music">
+            <div class="w-16 h-16 bg-primary-container/20 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined text-primary-container text-3xl" style="font-variation-settings: 'FILL' 1;">music_note</span>
+            </div>
+            <span class="font-headline-sm text-headline-sm">Music</span>
+        </div>
+        <!-- Gear -->
+        <div class="glass-card p-stack-md rounded-2xl flex flex-col items-center justify-center aspect-square text-center group cursor-pointer category-pill" data-category="Gear">
+            <div class="w-16 h-16 bg-secondary-container/20 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined text-secondary-container text-3xl" style="font-variation-settings: 'FILL' 1;">camera</span>
+            </div>
+            <span class="font-headline-sm text-headline-sm">Gear</span>
+        </div>
+    </div>
+</section>
+
+<!-- Top Listings Grid -->
+<section class="py-section-gap bg-surface-container-low reveal-on-scroll" id="listingsSection">
+    <div class="max-w-container-max mx-auto px-margin-desktop">
+        <div class="mb-12">
+            <h2 class="font-headline-md text-headline-md mb-2">Top listings today</h2>
+            <p class="font-body-md text-body-md text-on-surface-variant">Live marketplace items from artists, collectors, and rental hosts.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="productGrid">
+            <!-- Products will be rendered here by JavaScript -->
+        </div>
+    </div>
+</section>
+
+<!-- Browse Section (Hidden by default) -->
+<section id="browseSection" class="hidden py-section-gap px-margin-desktop max-w-container-max mx-auto">
+    <div class="mb-12">
+        <h2 class="font-headline-md text-headline-md mb-6">Browse by Category</h2>
+        <div class="flex flex-wrap gap-3">
+            <button class="category-btn px-6 py-2 rounded-full border border-primary text-primary bg-primary/10 font-label-md active" data-category="all">All</button>
+            <button class="category-btn px-6 py-2 rounded-full border border-outline-variant/30 text-on-surface-variant hover:text-primary transition-colors font-label-md" data-category="Art">Art</button>
+            <button class="category-btn px-6 py-2 rounded-full border border-outline-variant/30 text-on-surface-variant hover:text-primary transition-colors font-label-md" data-category="HotWheels">HotWheels</button>
+            <button class="category-btn px-6 py-2 rounded-full border border-outline-variant/30 text-on-surface-variant hover:text-primary transition-colors font-label-md" data-category="Tech">Tech</button>
+            <button class="category-btn px-6 py-2 rounded-full border border-outline-variant/30 text-on-surface-variant hover:text-primary transition-colors font-label-md" data-category="Music">Music</button>
+            <button class="category-btn px-6 py-2 rounded-full border border-outline-variant/30 text-on-surface-variant hover:text-primary transition-colors font-label-md" data-category="Gear">Gear</button>
+        </div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="browseGrid">
+        <!-- Browse products will be rendered here -->
+    </div>
+</section>
+
+<!-- Upload Section (Hidden by default) -->
+<section id="uploadSection" class="hidden py-section-gap px-margin-desktop max-w-container-max mx-auto">
+    <div class="mb-12">
+        <h2 class="font-headline-md text-headline-md mb-2">Create a new listing</h2>
+        <p class="font-body-md text-body-md text-on-surface-variant">Upload your item details so buyers and renters can discover it.</p>
+    </div>
+    <div class="max-w-2xl">
+        <form id="uploadForm" class="glass-card rounded-2xl p-8 space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="font-label-md text-label-md block mb-2">Listing Title</label>
+                    <input type="text" name="title" placeholder="Custom beat pack" required class="w-full bg-surface-container rounded-lg px-4 py-3 border border-outline-variant/30 text-on-surface placeholder-on-surface-variant focus:border-primary outline-none transition-colors"/>
+                </div>
+                <div>
+                    <label class="font-label-md text-label-md block mb-2">Category</label>
+                    <select name="category" required class="w-full bg-surface-container rounded-lg px-4 py-3 border border-outline-variant/30 text-on-surface focus:border-primary outline-none transition-colors">
+                        <option value="Art">Art</option>
+                        <option value="HotWheels">HotWheels</option>
+                        <option value="Tech">Tech</option>
+                        <option value="Music">Music</option>
+                        <option value="Gear">Gear</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label class="font-label-md text-label-md block mb-2">Description</label>
+                <textarea name="description" rows="5" placeholder="Describe your item..." required class="w-full bg-surface-container rounded-lg px-4 py-3 border border-outline-variant/30 text-on-surface placeholder-on-surface-variant focus:border-primary outline-none transition-colors resize-none"></textarea>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="font-label-md text-label-md block mb-2">Price ($)</label>
+                    <input type="number" name="price" placeholder="45" min="1" required class="w-full bg-surface-container rounded-lg px-4 py-3 border border-outline-variant/30 text-on-surface placeholder-on-surface-variant focus:border-primary outline-none transition-colors"/>
+                </div>
+                <div>
+                    <label class="font-label-md text-label-md block mb-2">Listing Type</label>
+                    <div class="flex gap-4">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="type" value="Sell" checked class="w-4 h-4"/>
+                            <span class="text-on-surface">Sell</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="type" value="Rent" class="w-4 h-4"/>
+                            <span class="text-on-surface">Rent</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <label class="font-label-md text-label-md block mb-2">Product Image</label>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Cloudinary Upload Widget -->
+                    <div>
+                        <button type="button" id="cloudinaryUploadBtn" class="w-full border-2 border-dashed border-outline-variant/50 rounded-lg p-6 text-center cursor-pointer hover:border-primary transition-colors group">
+                            <div class="pointer-events-none">
+                                <span class="material-symbols-outlined text-3xl text-on-surface-variant mb-2 block group-hover:text-primary transition-colors">cloud_upload</span>
+                                <p class="font-label-md text-on-surface-variant mb-1">Click to upload from Cloudinary</p>
+                                <p class="text-xs text-on-surface-variant">PNG, JPG, GIF (Max 5MB)</p>
+                            </div>
+                        </button>
+                        <p id="cloudinaryFileName" class="text-xs text-on-surface-variant mt-2"></p>
+                        <input type="hidden" name="imageUrl" id="cloudinaryImageUrl" />
+                    </div>
+                    <!-- Image Preview -->
+                    <div class="bg-surface-container rounded-lg p-4 flex items-center justify-center min-h-[200px]" id="previewContainer">
+                        <div class="text-center">
+                            <span class="material-symbols-outlined text-3xl text-on-surface-variant/50 block mb-2">image</span>
+                            <p class="text-sm text-on-surface-variant">Image preview</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <label class="font-label-md text-label-md block mb-2">Image URL (Optional)</label>
+                <input type="text" name="imageUrl" placeholder="https://images.unsplash.com/..." class="w-full bg-surface-container rounded-lg px-4 py-3 border border-outline-variant/30 text-on-surface placeholder-on-surface-variant focus:border-primary outline-none transition-colors"/>
+            </div>
+
+            <div>
+                <label class="font-label-md text-label-md block mb-2">UPI ID (Optional)</label>
+                <input type="text" name="upiId" placeholder="example@bank" class="w-full bg-surface-container rounded-lg px-4 py-3 border border-outline-variant/30 text-on-surface placeholder-on-surface-variant focus:border-primary outline-none transition-colors"/>
+            </div>
+
+            <div class="flex gap-3">
+                <button type="submit" class="flex-1 bg-primary-container text-on-primary-container font-bold px-8 py-4 rounded-xl text-body-lg hover:scale-105 transition-transform active:scale-95">
+                    Create Listing
+                </button>
+                <button type="button" id="goToDashboardBtn" class="flex-none bg-surface-container-high border border-outline-variant/30 text-on-surface px-6 py-4 rounded-xl hover:bg-surface-variant transition-colors" onclick="window.location.href='dashboard.html'">
+                    Go to Dashboard
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<section id="detailSection" class="hidden py-section-gap px-margin-desktop max-w-container-max mx-auto">
+    <button id="backToBrowseBtn" class="mb-8">Back</button>
+    <div class="grid md:grid-cols-2 gap-12">
+        <div class="glass-card rounded-2xl">
+            <img id="detailImage" src="" alt="preview" class="w-full"/>
+        </div>
+        <div>
+            <span id="detailTag" class="text-xs inline-block mb-4">For Sale</span>
+            <h2 id="detailTitle" class="font-headline-md mb-2">Item</h2>
+            <p id="detailCategory" class="mb-6">Category</p>
+            <p id="detailPrice" class="text-primary mb-6">Price</p>
+            <p id="detailDescription" class="mb-8">Description</p>
+            <div class="flex flex-col gap-3">
+                <button id="buyNowBtn" class="bg-primary-container px-8 py-4 rounded-xl">Buy</button>
+                <button id="addToCartBtn" class="bg-secondary-container text-on-secondary-container px-8 py-4 rounded-xl">Add to Cart</button>
+                <button id="chatBtn" class="px-8 py-4 rounded-xl">Chat</button>
+            </div>
+        </div>
+    </div>
+    <div id="reviewList" class="mt-16"></div>
+</section>
+
+<!-- Footer -->
+<footer class="w-full py-stack-lg border-t border-outline-variant/20 bg-surface-container-lowest text-secondary">
+    <div class="flex flex-col md:flex-row justify-between items-center px-margin-desktop max-w-container-max mx-auto gap-8">
+        <div class="flex flex-col items-center md:items-start">
+            <span class="font-display-lg text-headline-sm font-bold text-on-surface mb-2">TalentTrade</span>
+            <p class="font-body-md text-label-md text-on-surface-variant text-center md:text-left">© 2024 TalentTrade Marketplace. All rights reserved.</p>
+        </div>
+        <div class="flex gap-8">
+            <a id="termsLink" class="font-body-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" href="#">Terms</a>
+            <a id="privacyLink" class="font-body-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" href="#">Privacy</a>
+            <a class="font-body-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" href="contact.html">Contact Us</a>
+        </div>
+    </div>
+</footer>
+
+<section id="termsSection" class="hidden py-section-gap px-margin-desktop max-w-container-max mx-auto bg-surface-container border border-outline-variant/30 rounded-3xl text-on-surface mb-16">
+    <div class="flex flex-col gap-6 p-8">
+        <div class="flex items-start justify-between gap-4">
+            <div>
+                <h2 class="font-headline-md text-headline-md mb-3">TalentTrade — Terms of Service</h2>
+                <p class="font-body-md text-body-md text-on-surface-variant">Welcome to <strong>TalentTrade</strong>. Because this is a development and practice platform, we keep our rules simple, clear, and direct. By using this site, you agree to the following terms:</p>
+            </div>
+            <button id="termsCloseBtn" class="font-label-md text-label-md px-4 py-2 rounded-full border border-outline-variant text-on-surface hover:bg-surface-variant transition-colors">Close</button>
+        </div>
+        <div class="space-y-6">
+            <div>
+                <h3 class="font-headline-sm text-headline-sm mb-2">1. Accounts & Security</h3>
+                <ul class="list-disc list-inside space-y-2 font-body-md text-body-md">
+                    <li>You must provide accurate information when creating an account.</li>
+                    <li>You are entirely responsible for keeping your login credentials secure.</li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="font-headline-sm text-headline-sm mb-2">2. Marketplace Rules (Selling &amp; Renting)</h3>
+                <ul class="list-disc list-inside space-y-2 font-body-md text-body-md">
+                    <li><strong>Sellers &amp; Lenders:</strong> You must legally own the items, art, hotwheels, software, or gear you list. Your titles and prices must be honest.</li>
+                    <li><strong>Buyers &amp; Renters:</strong> You agree to review the listing details and rental periods carefully before making a transaction.</li>
+                    <li><strong>Our Role:</strong> This website acts strictly as a matching platform. We do not physically inspect, verify, or guarantee the items listed by users.</li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="font-headline-sm text-headline-sm mb-2">3. Media &amp; Content Uploads</h3>
+                <ul class="list-disc list-inside space-y-2 font-body-md text-body-md">
+                    <li>You retain full ownership of any images, video previews, or descriptions you upload.</li>
+                    <li>By uploading media, you grant this platform the right to display it on the browse and item pages.</li>
+                    <li>You may not upload copyrighted, misleading, or malicious files.</li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="font-headline-sm text-headline-sm mb-2">4. Reviews &amp; Ratings</h3>
+                <ul class="list-disc list-inside space-y-2 font-body-md text-body-md">
+                    <li>Feedback, comments, and star ratings must be accurate and based on real interactions.</li>
+                    <li>Creating fake accounts to manipulate the rating system is strictly prohibited.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div id="cartFab" class="cart-fab" title="Open cart drawer">
+    <span class="material-symbols-outlined">shopping_cart</span>
+    <span id="cartCount" class="cart-count">0</span>
+</div>
+
+<aside id="cartDrawer" class="cart-drawer" aria-label="Shopping cart">
+    <div class="cart-drawer-header">
+        <div>
+            <h2>Your Cart</h2>
+            <p class="text-sm text-on-surface-variant">Review items before checkout.</p>
+        </div>
+        <button id="cartCloseBtn" class="text-on-surface-variant material-symbols-outlined" aria-label="Close cart drawer">close</button>
+    </div>
+    <div id="cartDrawerBody" class="cart-drawer-body">
+        <p class="text-on-surface-variant">Your cart is empty.</p>
+    </div>
+    <div class="cart-footer">
+        <button id="checkoutBtn" class="bg-primary-container text-on-primary-container font-bold rounded-xl py-4">Proceed to Checkout</button>
+    </div>
+</aside>
+
+<button id="aiOpenBtn" class="ai-chat-trigger" aria-label="Open AI assistant">
+    <span class="material-symbols-outlined">support_agent</span>
+</button>
+
+<div id="aiAssistantCard" class="ai-assistant-card">
+    <div class="ai-card-header">
+        <div>
+            <p class="ai-card-title">TalentTrade AI Assistant</p>
+            <p class="ai-card-subtitle">Ask about item prices, category values, and what products are used for.</p>
+        </div>
+        <button id="aiCloseBtn" class="ai-card-close material-symbols-outlined" aria-label="Close">close</button>
+    </div>
+    <div id="aiMessagesContainer" class="ai-messages">
+        <div class="ai-message ai-bot-message"><p>Hi there! Ask me about market prices, item uses, categories, or featured listings.</p></div>
+    </div>
+    <div class="ai-input-row">
+        <input id="aiUserInput" type="text" placeholder="Ask e.g. price of AI Voice Model or what is this used for" />
+        <button id="aiSendBtn" class="ai-send-btn">Send</button>
+    </div>
+</div>
+
+<script>
+    (function() {
+        const canvas = document.getElementById('shader-canvas-ANIMATION_3');
+
+        function syncSize() {
+            const w = canvas.clientWidth || 1280;
+
+
+            const h = canvas.clientHeight || 720;
+            if (canvas.width !== w || canvas.height !== h) {
+                canvas.width = w;
+                canvas.height = h;
+            }
+        }
+
+        if (typeof ResizeObserver !== 'undefined') {
+            new ResizeObserver(syncSize).observe(canvas);
+        }
+
+        syncSize();
+
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        if (!gl) return;
+
+        const vs = `attribute vec2 a_position;
+varying vec2 v_texCoord;
+void main() {
+  v_texCoord = a_position * 0.5 + 0.5;
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}`;
+
+        const fs = `precision highp float;
+varying vec2 v_texCoord;
+uniform float u_time;
+uniform vec2 u_resolution;
+
+float noise(vec2 p) {
+    return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
+void main() {
+    vec2 uv = v_texCoord;
+    vec3 color1 = vec3(0.043, 0.075, 0.149);
+    vec3 color2 = vec3(0.075, 0.106, 0.180);
+    
+    float n = noise(uv + u_time * 0.05);
+    float pulse = 0.5 + 0.5 * sin(u_time * 0.2 + uv.x * 2.0 + uv.y * 2.0);
+    
+    vec3 finalColor = mix(color1, color2, pulse * 0.3);
+    
+    float glow = smoothstep(0.98, 1.0, noise(uv * 10.0 + u_time * 0.1));
+    finalColor += glow * 0.1;
+
+    gl_FragColor = vec4(finalColor, 1.0);
+}`;
+
+        function cs(type, src) {
+            const s = gl.createShader(type);
+            gl.shaderSource(s, src);
+            gl.compileShader(s);
+            return s;
+        }
+
+        const prog = gl.createProgram();
+        gl.attachShader(prog, cs(gl.VERTEX_SHADER, vs));
+        gl.attachShader(prog, cs(gl.FRAGMENT_SHADER, fs));
+        gl.linkProgram(prog);
+        gl.useProgram(prog);
+
+        const buf = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+
+        const pos = gl.getAttribLocation(prog, 'a_position');
+        gl.enableVertexAttribArray(pos);
+        gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+
+        const uTime = gl.getUniformLocation(prog, 'u_time');
+        const uRes = gl.getUniformLocation(prog, 'u_resolution');
+        const uMouse = gl.getUniformLocation(prog, 'u_mouse');
+
+        let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+        window.addEventListener('mousemove', (event) => {
+            const rect = canvas.getBoundingClientRect();
+            if (rect.width && rect.height) {
+                const nx = (event.clientX - rect.left) / rect.width;
+                const ny = 1.0 - (event.clientY - rect.top) / rect.height;
+                mouse.x = nx * canvas.width;
+                mouse.y = ny * canvas.height;
+            }
+        });
+
+        function render(t) {
+            if (typeof ResizeObserver === 'undefined') syncSize();
+            gl.viewport(0, 0, canvas.width, canvas.height);
+            if (uTime) gl.uniform1f(uTime, t * 0.001);
+            if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
+            if (uMouse) gl.uniform2f(uMouse, mouse.x, mouse.y);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+            requestAnimationFrame(render);
+        }
+        render(0);
+    })();
+
+    // Reveal on scroll
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.reveal-on-scroll').forEach(el => observer.observe(el));
+</script>
+
+<script>
+    // Quick runtime smoke test to ensure inline scripts run
+    try {
+        document.documentElement.dataset.inlineTest = 'ok';
+    } catch (e) {
+        console.error('inline test failed', e);
+    }
+</script>
+<script>
+    // Show registered/logged-in user on the homepage (moved outside canvas script)
+    document.addEventListener('DOMContentLoaded', function() {
+        const legacy = localStorage.getItem('talenttradeCurrentUser');
+        const firebaseUser = localStorage.getItem('currentUser');
+        const user = firebaseUser ? JSON.parse(firebaseUser) : (legacy ? JSON.parse(legacy) : null);
+
+        if (user) {
+            const loginBtn = document.getElementById('loginNavBtn');
+            const registerBtn = document.getElementById('registerNavBtn');
+            const dashboardBtn = document.getElementById('dashboardNavBtn');
+            const logoutBtn = document.getElementById('logoutNavBtn');
+            const userDisplay = document.getElementById('userDisplay');
+            const userName = document.getElementById('userName');
+            const userAvatar = document.getElementById('userAvatar');
+
+            if (loginBtn) loginBtn.classList.add('hidden');
+            if (registerBtn) registerBtn.classList.add('hidden');
+            if (dashboardBtn) dashboardBtn.classList.remove('hidden');
+            if (logoutBtn) logoutBtn.classList.remove('hidden');
+
+            if (userDisplay && userName && userAvatar) {
+                userName.textContent = user.username || user.fullName || user.email || 'User';
+                const avatarUrl = user.avatarUrl || (`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(user.username || user.email || 'user')}`);
+                userAvatar.src = avatarUrl;
+                userDisplay.classList.remove('hidden');
+            }
+        }
+    });
+</script>
+<script src="script.js"></script>
+</body>
+</html>

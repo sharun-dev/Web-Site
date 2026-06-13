@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Cart - TalentTrade</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body class="auth-page">
+    <div class="auth-container">
+        <div class="auth-bg-gradient"></div>
+        <div class="auth-content">
+            <div class="auth-header">
+                <a href="index.html" class="brand-link">
+                    <div class="brand-mark-small">TT</div>
+                    <div>
+                        <span class="brand-name">TalentTrade</span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="auth-card glassmorphism">
+                <div class="auth-card-header">
+                    <h1>My Cart</h1>
+                    <p>Review items you added and continue to checkout.</p>
+                </div>
+
+                <div id="emptyCartMessage" class="space-y-4 text-center text-on-surface-variant">
+                    <p>Your cart is currently empty.</p>
+                    <button id="continueShoppingBtn" class="auth-btn secondary-btn w-full">Continue Shopping</button>
+                </div>
+
+                <div id="cartItemsSection" class="space-y-6">
+                    <div id="cartContainer" class="space-y-4"></div>
+
+                    <div class="glass-card p-6 rounded-2xl bg-surface-container-low">
+                        <div class="flex flex-col gap-3">
+                            <div class="flex justify-between items-center font-bold text-on-surface">
+                                <span>Total</span>
+                                <span id="cartTotal">$0.00</span>
+                            </div>
+                            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                <button id="clearCartBtn" class="auth-btn secondary-btn w-full">Clear Cart</button>
+                                <button id="checkoutAllBtn" class="auth-btn primary-btn w-full">Checkout First Item</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="auth-footer-text">
+                <p>&copy; 2026 TalentTrade. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUser = TalentTrade.auth.getCurrentUser();
+            if (!currentUser) {
+                window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.href);
+                return;
+            }
+
+            const cartContainer = document.getElementById('cartContainer');
+            const cartTotal = document.getElementById('cartTotal');
+            const emptyCartMessage = document.getElementById('emptyCartMessage');
+            const cartItemsSection = document.getElementById('cartItemsSection');
+            const clearCartBtn = document.getElementById('clearCartBtn');
+            const checkoutAllBtn = document.getElementById('checkoutAllBtn');
+            const continueShoppingBtn = document.getElementById('continueShoppingBtn');
+
+            function formatCurrency(value) {
+                return '$' + parseFloat(value || 0).toFixed(2);
+            }
+
+            function renderCart() {
+                const cartItems = TalentTrade.cart.getItems();
+                if (!cartItems.length) {
+                    emptyCartMessage.classList.remove('hidden');
+                    cartItemsSection.classList.add('hidden');
+                    return;
+                }
+
+                emptyCartMessage.classList.add('hidden');
+                cartItemsSection.classList.remove('hidden');
+
+                cartContainer.innerHTML = cartItems.map(item => {
+                    const itemTotal = item.quantity * item.price;
+                    return `
+                        <div class="glass-card p-5 rounded-3xl bg-surface-container-low flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                            <div class="flex items-center gap-4">
+                                <img src="${item.image || placeholderDataUrl(120,120,'No Image')}" alt="${item.title}" class="w-24 h-24 rounded-2xl object-cover" />
+                                <div>
+                                    <p class="font-bold text-on-surface">${item.title}</p>
+                                    <p class="text-sm text-on-surface-variant">Quantity: ${item.quantity}</p>
+                                    <p class="text-sm text-primary font-semibold">${formatCurrency(item.price)} each</p>
+                                </div>
+                            </div>
+                            <div class="flex flex-col gap-3 text-right">
+                                <p class="font-bold text-on-surface">Subtotal: ${formatCurrency(itemTotal)}</p>
+                                <div class="grid grid-cols-2 gap-2 sm:grid-cols-1">
+                                    <button data-remove-id="${item.id}" class="auth-btn secondary-btn">Remove</button>
+                                    <button data-product-id="${item.id}" class="auth-btn primary-btn">Checkout</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                cartTotal.textContent = formatCurrency(TalentTrade.cart.getTotalPrice());
+            }
+
+            cartContainer.addEventListener('click', function(event) {
+                const removeBtn = event.target.closest('[data-remove-id]');
+                if (removeBtn) {
+                    event.preventDefault();
+                    const id = removeBtn.dataset.removeId;
+                    TalentTrade.cart.removeItem(id);
+                    renderCart();
+                    return;
+                }
+
+                const checkoutBtn = event.target.closest('[data-product-id]');
+                if (checkoutBtn) {
+                    event.preventDefault();
+                    const productId = checkoutBtn.dataset.productId;
+                    if (productId) {
+                        window.location.href = 'checkout.html?productId=' + encodeURIComponent(productId);
+                    }
+                }
+            });
+
+            clearCartBtn.addEventListener('click', function() {
+                if (TalentTrade.cart.getItems().length === 0) return;
+                if (confirm('Remove all items from your cart?')) {
+                    TalentTrade.cart.clear();
+                    renderCart();
+                }
+            });
+
+            checkoutAllBtn.addEventListener('click', function() {
+                const firstItem = TalentTrade.cart.getItems()[0];
+                if (!firstItem) {
+                    alert('Your cart is empty.');
+                    return;
+                }
+                window.location.href = 'checkout.html?productId=' + encodeURIComponent(firstItem.id);
+            });
+
+            continueShoppingBtn.addEventListener('click', function() {
+                window.location.href = 'index.html';
+            });
+
+            renderCart();
+        });
+    </script>
+</body>
+</html>

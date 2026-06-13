@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - TalentTrade Marketplace</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+    <script>
+        // Get current user from localStorage
+        function getDashboardCurrentUser() {
+            const legacyUser = localStorage.getItem('talenttradeCurrentUser');
+            const firebaseUser = localStorage.getItem('currentUser');
+            const raw = legacyUser || firebaseUser;
+            if (!raw) return null;
+
+            const user = JSON.parse(raw);
+            if (user && !user.id && user.uid) {
+                user.id = user.uid;
+            }
+            if (user && !user.fullName) {
+                user.fullName = user.username || user.email || 'User';
+            }
+            return user;
+        }
+    </script>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="dashboard-sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-brand">
+                    <div class="brand-mark">TT</div>
+                    <span>TalentTrade</span>
+                </a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <a href="#dashboard" class="nav-item active" data-page="dashboard">
+                            <span class="nav-icon">📊</span>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#listings" class="nav-item" data-page="listings">
+                            <span class="nav-icon">📦</span>
+                            <span>My Listings</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#upload" class="nav-item" data-page="upload">
+                            <span class="nav-icon">➕</span>
+                            <span>Upload Item</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#messages" class="nav-item" data-page="messages">
+                            <span class="nav-icon">💬</span>
+                            <span>Messages</span>
+                            <span class="badge hidden" id="messagesBadge">0</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#settings" class="nav-item" data-page="settings">
+                            <span class="nav-icon">⚙️</span>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="btn-logout">
+                    <span class="nav-icon">🚪</span>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <!-- Top Bar -->
+            <div class="dashboard-topbar">
+                <div class="topbar-content">
+                    <div class="topbar-left">
+                        <a href="index.html" class="home-link" title="Go to Home">🏠 Home</a>
+                        <h1 id="pageTitle">Dashboard</h1>
+                    </div>
+                    <div class="topbar-actions">
+                        <span id="userGreeting" class="user-greeting"></span>
+                        <div class="user-avatar" id="userAvatar">U</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-content">
+                <!-- Dashboard Page -->
+                <section id="dashboardPage" class="dashboard-page active">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">📋</div>
+                            <div class="stat-info">
+                                <h3>Total Listings</h3>
+                                <p class="stat-value" id="totalListings">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">✅</div>
+                            <div class="stat-info">
+                                <h3>Active Listings</h3>
+                                <p class="stat-value" id="activeListings">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🛒</div>
+                            <div class="stat-info">
+                                <h3>Orders</h3>
+                                <p class="stat-value" id="completedOrders">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">💬</div>
+                            <div class="stat-info">
+                                <h3>Messages</h3>
+                                <p class="stat-value" id="messageCount">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">⭐</div>
+                            <div class="stat-info">
+                                <h3>Rating</h3>
+                                <p class="stat-value">5.0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-row">
+                        <!-- Profile Card -->
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h2>Your Profile</h2>
+                            </div>
+                            <div class="card-body">
+                                <div class="profile-grid">
+                                    <div class="profile-item">
+                                        <label>Full Name</label>
+                                        <p id="profileFullName">-</p>
+                                    </div>
+                                    <div class="profile-item">
+                                        <label>Username</label>
+                                        <p id="profileUsername">-</p>
+                                    </div>
+                                    <div class="profile-item">
+                                        <label>Email</label>
+                                        <p id="profileEmail">-</p>
+                                    </div>
+                                    <div class="profile-item">
+                                        <label>Mobile</label>
+                                        <p id="profileMobile">-</p>
+                                    </div>
+                                    <div class="profile-item">
+                                        <label>Member Since</label>
+                                        <p id="profileMemberSince">-</p>
+                                    </div>
+                                    <div class="profile-item">
+                                        <label>Status</label>
+                                        <p><span class="badge-success">Active</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Actions -->
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h2>Quick Actions</h2>
+                            </div>
+                            <div class="card-body">
+                                <div class="quick-actions">
+                                    <a href="#upload" class="nav-item action-link" data-page="upload">
+                                        <span class="action-icon">➕</span>
+                                        <span>Upload New Item</span>
+                                    </a>
+                                    <a href="#listings" class="nav-item action-link" data-page="listings">
+                                        <span class="action-icon">📦</span>
+                                        <span>View All Listings</span>
+                                    </a>
+                                    <a href="index.html" class="nav-item action-link">
+                                        <span class="action-icon">🏠</span>
+                                        <span>Back to Marketplace</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Listings Page -->
+                <section id="listingsPage" class="dashboard-page">
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h2>My Listings</h2>
+                            <a href="#upload" class="nav-item action-link" data-page="upload">
+                                <span>➕ Add New</span>
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <div id="listingsContainer" class="listings-container">
+                                <p class="empty-state">No listings yet. <a href="#upload" class="nav-item action-link" data-page="upload">Create one now</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Upload Page -->
+                <section id="uploadPage" class="dashboard-page">
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h2>Create New Listing</h2>
+                        </div>
+                        <div class="card-body">
+                            <form id="dashboardUploadForm" class="upload-form">
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label>Listing Title</label>
+                                        <input type="text" name="title" placeholder="Custom beat pack" required />
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Category</label>
+                                        <select name="category" required>
+                                            <option value="">Select a category</option>
+                                            <option value="Art">Art</option>
+                                            <option value="HotWheels">HotWheels</option>
+                                            <option value="Tech">Tech</option>
+                                            <option value="Music">Music</option>
+                                            <option value="Gear">Gear</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group full-width">
+                                        <label>Description</label>
+                                        <textarea name="description" rows="5" placeholder="Describe your item..." required></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Price ($)</label>
+                                        <input type="number" name="price" placeholder="45" min="1" required />
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Listing Type</label>
+                                        <div class="toggle-group">
+                                            <label><input type="radio" name="type" value="Sell" checked /> Sell</label>
+                                            <label><input type="radio" name="type" value="Rent" /> Rent</label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group full-width">
+                                        <label>Listing Image (Cloudinary)</label>
+                                        <button type="button" id="dashboardCloudinaryBtn" class="primary-btn" style="width: 100%; margin-bottom: 8px;">📤 Upload Image</button>
+                                        <p id="dashboardImageStatus" style="font-size: 0.85rem; color: #cbd5e1; margin: 0;"></p>
+                                        <input type="hidden" name="imageUrl" id="dashboardImageUrl" />
+                                    </div>
+                                    <div class="form-group full-width">
+                                        <label>UPI ID (Optional)</label>
+                                        <input type="text" name="upiId" placeholder="example@bank" />
+                                    </div>
+                                </div>
+                                <button type="submit" class="primary-btn">Create Listing</button>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Messages Page -->
+                <section id="messagesPage" class="dashboard-page">
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h2>Messages</h2>
+                        </div>
+                        <div class="card-body">
+                            <div id="messagesContainer" class="messages-container">
+                                <p class="empty-state">No messages yet</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Settings Page -->
+                <section id="settingsPage" class="dashboard-page">
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h2>Account Settings</h2>
+                        </div>
+                        <div class="card-body">
+                            <form id="settingsForm" class="settings-form">
+                                <div class="form-group">
+                                    <label>Full Name</label>
+                                    <input type="text" id="settingsFullName" placeholder="Full Name" required />
+                                </div>
+                                <div class="form-group">
+                                    <label>Email</label>
+                                    <input type="email" id="settingsEmail" placeholder="Email" required />
+                                </div>
+                                <div class="form-group">
+                                    <label>Mobile Number</label>
+                                    <input type="tel" id="settingsMobile" placeholder="Mobile" required />
+                                </div>
+                                <div class="form-group">
+                                    <label>UPI ID</label>
+                                    <input type="text" id="settingsUpi" placeholder="example@bank" />
+                                </div>
+                                <button type="submit" class="primary-btn">Save Changes</button>
+                            </form>
+                            <div class="divider"></div>
+                            <div class="danger-zone">
+                                <h3>Danger Zone</h3>
+                                <button id="deleteAccountBtn" class="btn-danger">Delete Account</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Cloudinary for dashboard upload (Direct Upload)
+            const dashboardCloudinaryBtn = document.getElementById('dashboardCloudinaryBtn');
+            const dashboardImageUrl = document.getElementById('dashboardImageUrl');
+            const dashboardImageStatus = document.getElementById('dashboardImageStatus');
+
+            if (dashboardCloudinaryBtn) {
+                // Create hidden file input
+                const dashboardFileInput = document.createElement('input');
+                dashboardFileInput.type = 'file';
+                dashboardFileInput.accept = 'image/jpeg,image/png,image/gif,image/webp';
+                dashboardFileInput.style.display = 'none';
+                document.body.appendChild(dashboardFileInput);
+
+                dashboardCloudinaryBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    dashboardFileInput.click();
+                });
+
+                dashboardFileInput.addEventListener('change', async function(e) {
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    // Validate file size
+                    if (file.size > 5 * 1024 * 1024) {
+                        dashboardImageStatus.textContent = '❌ Error: File size exceeds 5MB limit';
+                        dashboardImageStatus.style.color = '#ffb4ab';
+                        return;
+                    }
+
+                    dashboardImageStatus.textContent = '⏳ Uploading...';
+                    dashboardImageStatus.style.color = '#cbd5e1';
+
+                    try {
+                        const cloudinaryConfig = window.TALENTRADE_CLOUDINARY_CONFIG || {
+                            uploadPreset: 'unsigned_talenttrade',
+                            uploadUrl: 'https://api.cloudinary.com/v1_1/dkz5wmhge/image/upload'
+                        };
+                        const formData = new FormData();
+                        formData.append('file', file);
+                        formData.append('upload_preset', cloudinaryConfig.uploadPreset);
+                        formData.append('folder', 'talenttrade/listings');
+
+                        const response = await fetch(cloudinaryConfig.uploadUrl, {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`Upload failed with status ${response.status}`);
+                        }
+
+                        const data = await response.json();
+                        const imageUrl = data.secure_url;
+                        
+                        dashboardImageUrl.value = imageUrl;
+                        dashboardImageStatus.textContent = `✓ Uploaded: ${file.name}`;
+                        dashboardImageStatus.style.color = '#22c55e';
+                        
+                        console.log('Dashboard image uploaded:', imageUrl);
+                    } catch (error) {
+                        dashboardImageStatus.textContent = `❌ Error: ${error.message}`;
+                        dashboardImageStatus.style.color = '#ffb4ab';
+                        console.error('Upload error:', error);
+                    }
+
+                    // Reset file input
+                    dashboardFileInput.value = '';
+                });
+            }
+        });
+    </script>
+    <script>
+        // Dashboard page functionality
+        let editingListingId = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUser = getDashboardCurrentUser();
+            if (currentUser) {
+                initializeDashboard();
+            } else {
+                // Show message if not logged in
+                document.querySelector('.dashboard-main').innerHTML = '<div class="dashboard-content"><div class="dashboard-card"><div class="card-header"><h2>Not Logged In</h2></div><div class="card-body"><p>Please <a href="login.html">login</a> or <a href="register.html">register</a> to access your dashboard.</p></div></div></div>';
+            }
+        });
+
+        function initializeDashboard() {
+            const currentUser = getDashboardCurrentUser();
+            const userRecord = ensureDashboardUserRecord(currentUser);
+
+            // Set user greeting and avatar
+            document.getElementById('userGreeting').textContent = `Welcome, ${currentUser.fullName}!`;
+            document.getElementById('userAvatar').textContent = currentUser.fullName.charAt(0).toUpperCase();
+
+            // Load user profile
+            loadUserProfile(currentUser);
+
+            // Setup page navigation
+            setupPageNavigation();
+
+            // Setup logout
+            setupLogout();
+
+            // Setup forms
+            setupUploadForm();
+            setupSettingsForm();
+
+            // Load listings
+            loadUserListings(userRecord);
+
+            // If URL contains a hash page, show that page after initialization
+            const hashPage = window.location.hash.slice(1);
+            if (hashPage) {
+                const validPages = ['dashboard', 'listings', 'upload', 'messages', 'settings'];
+                if (validPages.includes(hashPage)) {
+                    showPage(hashPage);
+                }
+            }
+        }
+
+        function loadUserProfile(user) {
+            document.getElementById('profileFullName').textContent = user.fullName;
+            document.getElementById('profileUsername').textContent = user.username;
+            document.getElementById('profileEmail').textContent = user.email;
+            document.getElementById('profileMobile').textContent = user.mobile;
+            document.getElementById('profileMemberSince').textContent = new Date().toLocaleDateString();
+
+            // Populate settings form
+            document.getElementById('settingsFullName').value = user.fullName;
+            document.getElementById('settingsEmail').value = user.email;
+            document.getElementById('settingsMobile').value = user.mobile;
+            const settingsUpi = document.getElementById('settingsUpi');
+            if (settingsUpi) settingsUpi.value = user.upiId || '';
+
+            const completedOrders = Array.isArray(user.orders) ? user.orders.length : 0;
+            const completedOrdersEl = document.getElementById('completedOrders');
+            if (completedOrdersEl) {
+                completedOrdersEl.textContent = completedOrders;
+            }
+        }
+
+        function ensureDashboardUserRecord(user) {
+            if (!user) return null;
+            const users = JSON.parse(localStorage.getItem('talenttradeUsers')) || [];
+            const userId = user.id || user.uid;
+            let existingUser = users.find(u => u.id === userId);
+
+            if (!existingUser) {
+                existingUser = {
+                    id: userId,
+                    uid: user.uid || userId,
+                    username: user.username || user.email || 'user',
+                    fullName: user.fullName || user.username || user.email || 'User',
+                    email: user.email || '',
+                    upiId: user.upiId || '',
+                    mobile: user.mobile || '',
+                    listings: []
+                };
+                users.push(existingUser);
+            } else {
+                existingUser.username = user.username || existingUser.username;
+                existingUser.fullName = user.fullName || existingUser.fullName;
+                existingUser.email = user.email || existingUser.email;
+                existingUser.upiId = user.upiId || existingUser.upiId || '';
+                existingUser.mobile = user.mobile || existingUser.mobile;
+            }
+
+            localStorage.setItem('talenttradeUsers', JSON.stringify(users));
+            if (!localStorage.getItem('talenttradeCurrentUser')) {
+                localStorage.setItem('talenttradeCurrentUser', JSON.stringify(existingUser));
+            }
+            if (!localStorage.getItem('currentUser')) {
+                localStorage.setItem('currentUser', JSON.stringify({
+                    uid: existingUser.id,
+                    email: existingUser.email,
+                    username: existingUser.username,
+                    fullName: existingUser.fullName,
+                    avatarUrl: existingUser.avatarUrl || '',
+                    upiId: existingUser.upiId || ''
+                }));
+            }
+
+            return existingUser;
+        }
+
+        function setupPageNavigation() {
+            const navItems = document.querySelectorAll('.nav-item, .action-link');
+            
+            navItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    const page = this.getAttribute('data-page');
+                    if (page) {
+                        e.preventDefault();
+                        showPage(page);
+                    }
+                });
+            });
+        }
+
+        function showPage(pageName) {
+            // Hide all pages
+            document.querySelectorAll('.dashboard-page').forEach(page => {
+                page.classList.remove('active');
+            });
+
+            // Show selected page
+            const page = document.getElementById(pageName + 'Page');
+            if (page) {
+                page.classList.add('active');
+                document.getElementById('pageTitle').textContent = getPageTitle(pageName);
+            }
+
+            // Update active nav item
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('data-page') === pageName) {
+                    item.classList.add('active');
+                }
+            });
+        }
+
+        function getPageTitle(page) {
+            const titles = {
+                'dashboard': 'Dashboard',
+                'listings': 'My Listings',
+                'upload': 'Upload Item',
+                'messages': 'Messages',
+                'settings': 'Settings'
+            };
+            return titles[page] || 'Dashboard';
+        }
+
+        function saveUsers(users) {
+            localStorage.setItem('talenttradeUsers', JSON.stringify(users));
+        }
+
+        function updateProductListing(listing) {
+            const products = TalentTrade.products.getAll();
+            const index = products.findIndex(p => p.id === listing.id);
+            if (index !== -1) {
+                products[index] = {
+                    ...products[index],
+                    title: listing.title,
+                    category: listing.category,
+                    price: listing.price,
+                    type: listing.type,
+                    badge: listing.type === 'Rent' ? 'For Rent' : 'For Sale',
+                    description: listing.description,
+                    image: listing.imageUrl,
+                    status: listing.status || products[index].status || 'active'
+                };
+                localStorage.setItem('talenttradeProducts', JSON.stringify(products));
+            }
+        }
+
+        function getListingOwner(userId) {
+            const users = JSON.parse(localStorage.getItem('talenttradeUsers')) || [];
+            return users.find(u => u.id === userId || u.uid === userId);
+        }
+
+        function renderChatHistory(listing) {
+            if (!listing.chats || listing.chats.length === 0) {
+                return '<p class="listing-chat-empty">No chat messages yet.</p>';
+            }
+            return listing.chats.map(chat => {
+                const isSeller = chat.senderRole === 'seller' || chat.sender === 'seller';
+                const author = isSeller ? 'You' : (chat.senderName || 'Buyer');
+                const messageClass = isSeller ? 'seller-chat' : 'buyer-chat';
+                const timestamp = chat.timestamp ? new Date(chat.timestamp).toLocaleString() : '';
+                return `
+                    <div class="listing-chat-message ${messageClass}">
+                        <span class="listing-chat-author">${author}</span>
+                        <p>${chat.text}</p>
+                        <span class="listing-chat-time">${timestamp}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function setupListingActions() {
+            const listingsContainer = document.getElementById('listingsContainer');
+            if (!listingsContainer) return;
+
+            listingsContainer.addEventListener('click', function(event) {
+                const button = event.target.closest('button[data-action]');
+                if (!button) return;
+
+                const action = button.dataset.action;
+                const listingId = button.dataset.listingId;
+                if (!action || !listingId) return;
+
+                if (action === 'edit') {
+                    editListing(listingId);
+                } else if (action === 'delete') {
+                    deleteListing(listingId);
+                } else if (action === 'mark-sold') {
+                    markListingSold(listingId);
+                } else if (action === 'send-chat') {
+                    sendListingMessage(listingId);
+                } else if (action === 'open-chat') {
+                    openListingChat(listingId);
+                }
+            });
+        }
+
+        function editListing(listingId) {
+            const currentUser = getDashboardCurrentUser();
+            const users = JSON.parse(localStorage.getItem('talenttradeUsers')) || [];
+            const user = users.find(u => u.id === (currentUser.id || currentUser.uid));
+            if (!user || !user.listings) return;
+
+            const listing = user.listings.find(item => item.id === listingId);
+            if (!listing) return;
+
+            const form = document.getElementById('dashboardUploadForm');
+            form.elements.title.value = listing.title;
+            form.elements.category.value = listing.category;
+            form.elements.description.value = listing.description;
+            form.elements.price.value = listing.price;
+            form.elements.imageUrl.value = listing.imageUrl;
+            form.querySelector(`input[name="type"][value="${listing.type}"]`).checked = true;
+            editingListingId = listingId;
+            showPage('upload');
+            form.querySelector('button[type="submit"]').textContent = 'Update Listing';
+        }
+
+        function deleteListing(listingId) {
+            if (!confirm('Remove this listing permanently?')) return;
+
+            const currentUser = getDashboardCurrentUser();
+            const users = JSON.parse(localStorage.getItem('talenttradeUsers')) || [];
+            const userIndex = users.findIndex(u => u.id === (currentUser.id || currentUser.uid));
+            if (userIndex === -1) return;
+
+            const listings = users[userIndex].listings || [];
+            users[userIndex].listings = listings.filter(item => item.id !== listingId);
+            saveUsers(users);
+
+            const products = TalentTrade.products.getAll().filter(item => item.id !== listingId);
+            localStorage.setItem('talenttradeProducts', JSON.stringify(products));
+
+            loadUserListings();
+            alert('Listing deleted successfully.');
+        }
+
+        function markListingSold(listingId) {
+            const currentUser = getDashboardCurrentUser();
+            const users = JSON.parse(localStorage.getItem('talenttradeUsers')) || [];
+            const userIndex = users.findIndex(u => u.id === (currentUser.id || currentUser.uid));
+            if (userIndex === -1) return;
+
+            const listing = users[userIndex].listings.find(item => item.id === listingId);
+            if (!listing) return;
+
+            listing.status = 'sold';
+            listing.purchaseDate = new Date().toISOString();
+            listing.chats = listing.chats || [];
+            listing.chats.push({
+                id: 'chat-' + Date.now(),
+                sender: 'buyer',
+                text: 'I have purchased this item and would like to discuss delivery details.',
+                timestamp: new Date().toISOString()
+            });
+
+            saveUsers(users);
+            updateProductListing(listing);
+            loadUserListings();
+            alert('Listing marked as sold and chat thread created.');
+        }
+
+        function sendListingMessage(listingId) {
+            const input = document.querySelector(`.listing-chat-input[data-listing-id="${listingId}"]`);
+            if (!input) {
+                console.error('Chat input not found for listing:', listingId);
+                return;
+            }
+            
+            const messageText = input.value.trim();
+            if (!messageText) {
+                alert('Please type a message');
+                return;
+            }
+
+            try {
+                const currentUser = getDashboardCurrentUser();
+                if (!currentUser) {
+                    alert('User not logged in');
+                    return;
+                }
+
+                const users = JSON.parse(localStorage.getItem('talenttradeUsers')) || [];
+                const userIndex = users.findIndex(u => u.id === (currentUser.id || currentUser.uid));
+                if (userIndex === -1) {
+                    alert('User record not found');
+                    return;
+                }
+
+                const listing = users[userIndex].listings.find(item => item.id === listingId);
+                if (!listing) {
+                    alert('Listing not found');
+                    return;
+                }
+
+                const message = {
+                    id: 'chat-' + Date.now(),
+                    sender: 'seller',
+                    senderRole: 'seller',
+                    senderName: currentUser.fullName || currentUser.username || 'You',
+                    senderId: currentUser.id || currentUser.uid,
+                    text: messageText,
+                    timestamp: new Date().toISOString()
+                };
+
+                listing.chats = listing.chats || [];
+                listing.chats.push(message);
+
+                // Also persist to shared chat storage so buyer chat page can receive the reply
+                const chatRoomId = `chat-${listingId}`;
+                const chatKey = `chat_${chatRoomId}`;
+                const chats = JSON.parse(localStorage.getItem(chatKey) || '[]');
+                chats.push({
+                    id: message.id,
+                    senderId: message.senderId,
+                    senderName: message.senderName,
+                    senderRole: message.senderRole,
+                    text: message.text,
+                    timestamp: message.timestamp
+                });
+                localStorage.setItem(chatKey, JSON.stringify(chats));
+
+                saveUsers(users);
+                input.value = '';
+                console.log('✓ Message sent successfully');
+                loadUserListings();
+            } catch (error) {
+                console.error('Error sending message:', error);
+                alert(`Failed to send message: ${error.message}`);
+            }
+        }
+
+        function openListingChat(listingId) {
+            const currentUser = getDashboardCurrentUser();
+            const users = JSON.parse(localStorage.getItem('talenttradeUsers')) || [];
+            const user = users.find(u => u.id === (currentUser.id || currentUser.uid));
+            if (!user || !user.listings) return;
+
+            const listing = user.listings.find(item => item.id === listingId);
+            if (!listing) return;
+
+            // Store listing data in sessionStorage for chat page
+            sessionStorage.setItem('chatContext', JSON.stringify({
+                creator: currentUser.fullName,
+                userId: currentUser.id || currentUser.uid,
+                chatRoomId: `chat-${listing.id}`,
+                listing: {
+                    id: listing.id,
+                    title: listing.title,
+                    category: listing.category,
+                    price: listing.price,
+                    type: listing.type,
+                    description: listing.description,
+                    imageUrl: listing.imageUrl,
+                    createdDate: listing.createdDate,
+                    status: listing.status,
+                    chats: listing.chats || []
+                }
+            }));
+
+            window.location.href = 'chatin.html';
+        }
+
+        function setupLogout() {
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                if (confirm('Are you sure you want to logout?')) {
+                    localStorage.removeItem('talenttradeCurrentUser');
+                    localStorage.removeItem('currentUser');
+                    window.location.href = 'login.html';
+                }
+            });
+        }
+
+        function setupUploadForm() {
+            const uploadForm = document.getElementById('dashboardUploadForm');
+            const submitButton = uploadForm.querySelector('button[type="submit"]');
+
+            function resetUploadForm() {
+                uploadForm.reset();
+                submitButton.textContent = 'Create Listing';
+                editingListingId = null;
+            }
+
+            uploadForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const formData = new FormData(this);
+                const currentUser = getDashboardCurrentUser();
+                const creatorName = currentUser.username || currentUser.fullName || currentUser.email || 'Current User';
+                const creatorId = currentUser.id || currentUser.uid;
+                const users = JSON.parse(localStorage.getItem('talenttradeUsers')) || [];
+                const userIndex = users.findIndex(u => u.id === creatorId);
+                if (userIndex === -1) return;
+
+                const listingData = {
+                    title: formData.get('title'),
+                    category: formData.get('category'),
+                    description: formData.get('description'),
+                    price: parseFloat(formData.get('price')),
+                    type: formData.get('type'),
+                    imageUrl: formData.get('imageUrl') || placeholderDataUrl(300, 200, 'Listing Image'),
+                    upiId: formData.get('upiId')?.trim() || '',
+                    createdDate: new Date().toISOString(),
+                    views: 0,
+                    status: 'active'
+                };
+
+                if (editingListingId) {
+                    const listingIndex = users[userIndex].listings.findIndex(item => item.id === editingListingId);
+                    if (listingIndex === -1) return;
+
+                    const listing = users[userIndex].listings[listingIndex];
+                    Object.assign(listing, {
+                        title: listingData.title,
+                        category: listingData.category,
+                        description: listingData.description,
+                        price: listingData.price,
+                        type: listingData.type,
+                        imageUrl: listingData.imageUrl,
+                        upiId: listingData.upiId
+                    });
+                    updateProductListing(listing);
+                    saveUsers(users);
+                    alert('Listing updated successfully!');
+                    resetUploadForm();
+                    loadUserListings();
+                    showPage('dashboard');
+                    return;
+                }
+
+                const listing = {
+                    id: 'product-' + Date.now(),
+                    title: listingData.title,
+                    category: listingData.category,
+                    description: listingData.description,
+                    price: listingData.price,
+                    type: listingData.type,
+                    imageUrl: listingData.imageUrl,
+                    upiId: listingData.upiId,
+                    createdDate: listingData.createdDate,
+                    views: 0,
+                    status: 'active',
+                    creatorId,
+                    creator: creatorName,
+                    chats: []
+                };
+
+                const marketplaceProduct = {
+                    ...listing,
+                    badge: listing.type === 'Rent' ? 'For Rent' : 'For Sale',
+                    rating: 5,
+                    reviewsCount: 0,
+                    reviews: []
+                };
+
+                const savedProduct = TalentTrade.products.addProduct(marketplaceProduct);
+                listing.id = savedProduct.id;
+
+                if (!users[userIndex].listings) {
+                    users[userIndex].listings = [];
+                }
+                users[userIndex].listings.push(listing);
+                saveUsers(users);
+
+                alert('Listing created successfully!');
+                resetUploadForm();
+                loadUserListings();
+                showPage('dashboard');
+            });
+        }
+
+        function setupSettingsForm() {
+            const settingsForm = document.getElementById('settingsForm');
+            settingsForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const currentUser = getDashboardCurrentUser();
+                const users = JSON.parse(localStorage.getItem('talenttradeUsers')) || [];
+                const userIndex = users.findIndex(u => u.id === (currentUser.id || currentUser.uid));
+
+                if (userIndex !== -1) {
+                    users[userIndex].fullName = document.getElementById('settingsFullName').value;
+                    users[userIndex].email = document.getElementById('settingsEmail').value;
+                        users[userIndex].mobile = document.getElementById('settingsMobile').value;
+                        users[userIndex].upiId = document.getElementById('settingsUpi').value.trim();
+
+                    currentUser.fullName = users[userIndex].fullName;
+                    currentUser.email = users[userIndex].email;
+                    currentUser.mobile = users[userIndex].mobile;
+                        currentUser.upiId = users[userIndex].upiId || '';
+
+                    localStorage.setItem('talenttradeUsers', JSON.stringify(users));
+                    localStorage.setItem('talenttradeCurrentUser', JSON.stringify(currentUser));
+                    localStorage.setItem('currentUser', JSON.stringify({
+                        uid: currentUser.id,
+                        email: currentUser.email,
+                        username: currentUser.username,
+                        fullName: currentUser.fullName,
+                        avatarUrl: currentUser.avatarUrl || ''
+                    }));
+
+                    alert('Settings saved successfully!');
+                    loadUserProfile(currentUser);
+                }
+            });
+
+            document.getElementById('deleteAccountBtn').addEventListener('click', function() {
+                if (confirm('Are you sure? This action cannot be undone.')) {
+                    const currentUser = getDashboardCurrentUser();
+                    const users = JSON.parse(localStorage.getItem('talenttradeUsers')) || [];
+                    const filteredUsers = users.filter(u => u.id !== (currentUser.id || currentUser.uid));
+
+                    localStorage.setItem('talenttradeUsers', JSON.stringify(filteredUsers));
+                    localStorage.removeItem('talenttradeCurrentUser');
+                    localStorage.removeItem('currentUser');
+
+                    alert('Account deleted successfully.');
+                    window.location.href = 'index.html';
+                }
+            });
+        }
+
+        function loadUserListings(userRecord) {
+            const currentUser = getDashboardCurrentUser();
+            const users = JSON.parse(localStorage.getItem('talenttradeUsers')) || [];
+            const user = userRecord || users.find(u => u.id === (currentUser.id || currentUser.uid));
+            const listingsContainer = document.getElementById('listingsContainer');
+            const listings = user?.listings || [];
+
+            document.getElementById('totalListings').textContent = listings.length;
+            document.getElementById('activeListings').textContent = listings.filter(l => l.status === 'active').length;
+
+            if (listings.length === 0) {
+                listingsContainer.innerHTML = '<p class="empty-state">No listings yet. <a href="#upload" class="nav-item action-link" data-page="upload">Create one now</a></p>';
+                return;
+            }
+
+            listingsContainer.innerHTML = listings.map(listing => `
+                <div class="listing-card" data-listing-id="${listing.id}">
+                        <div class="listing-image">
+                            <img src="${(listing.imageUrl && !String(listing.imageUrl).includes('via.placeholder.com')) ? listing.imageUrl : placeholderDataUrl(300,200,'No Image')}" alt="${listing.title}" onerror="this.onerror=null;this.src='${placeholderDataUrl(300,200,'No Image')}'" />
+                            <span class="listing-badge">${listing.type === 'Rent' ? 'For Rent' : 'For Sale'}</span>
+                        </div>
+                    <div class="listing-info">
+                        <div class="listing-header">
+                            <h3>${listing.title}</h3>
+                            <span class="listing-status ${listing.status === 'sold' ? 'status-sold' : 'status-active'}">${listing.status.toUpperCase()}</span>
+                        </div>
+                        <p class="listing-meta">${listing.category} · $${listing.price.toFixed(2)}</p>
+                        <p class="listing-desc">${listing.description}</p>
+                        <div class="listing-details">
+                            <span>Created: ${new Date(listing.createdDate).toLocaleDateString()}</span>
+                            ${listing.purchaseDate ? `<span>Purchased: ${new Date(listing.purchaseDate).toLocaleDateString()}</span>` : ''}
+                        </div>
+                        ${listing.paymentDetails ? `
+                            <div class="listing-payment-info">
+                                <h4>Payment Details</h4>
+                                <p><strong>Buyer:</strong> ${listing.paymentDetails.buyerName || 'Buyer'}</p>
+                                <p><strong>UPI:</strong> ${listing.paymentDetails.upiId || 'N/A'}</p>
+                                <p><strong>Notes:</strong> ${listing.paymentDetails.upiNotes || 'N/A'}</p>
+                                <p><strong>Address:</strong> ${listing.paymentDetails.address || 'N/A'}</p>
+                                <p><strong>Pincode:</strong> ${listing.paymentDetails.pincode || 'N/A'}</p>
+                                <p><strong>Order:</strong> ${listing.paymentDetails.orderId || listing.purchaseDate || 'N/A'}</p>
+                                <p><strong>Seller UPI:</strong> ${user.upiId || 'Not set'}</p>
+                            </div>
+                        ` : ''}
+                        <div class="listing-actions">
+                            <button class="btn-small" data-action="edit" data-listing-id="${listing.id}">Edit</button>
+                            <button class="btn-small danger" data-action="delete" data-listing-id="${listing.id}">Delete</button>
+                            ${listing.status === 'active' ? `<button class="btn-small" data-action="mark-sold" data-listing-id="${listing.id}">Mark Sold</button>` : ''}
+                            <button class="btn-small" data-action="open-chat" data-listing-id="${listing.id}" title="Open chat for this item">💬 Chat</button>
+                        </div>
+                        <div class="listing-chat">
+                            <div class="listing-chat-header">
+                                <strong>Chat</strong>
+                                ${listing.status === 'sold' ? '<span class="chat-status">Sale chat active</span>' : '<span class="chat-status chat-muted">Chat with buyer</span>'}
+                            </div>
+                            <div class="listing-chat-history">
+                                ${renderChatHistory(listing)}
+                            </div>
+                            <div class="listing-chat-compose">
+                                <input class="listing-chat-input" data-listing-id="${listing.id}" type="text" placeholder="Reply to buyer..." />
+                                <button class="btn-small" data-action="send-chat" data-listing-id="${listing.id}">Send</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            setupListingActions();
+        }
+    </script>
+</body>
+</html>
