@@ -32,7 +32,4 @@ You will need a local development environment capable of serving HTML files (lik
 
 ### Installation & Setup
 
-1. **Clone the repository:**
-```bash
-   git clone [https://github.com/your-username/TalentTrade.git](https://github.com/your-username/TalentTrade.git)
-   cd TalentTrade
+
