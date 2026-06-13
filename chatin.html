@@ -68,13 +68,20 @@
         // Initialize Firebase
         let db = null;
         let useLocalStorage = false;
-        try {
-            const app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            console.log('✓ Firebase initialized for chat');
-        } catch (e) {
-            console.warn("Firebase initialization failed, using localStorage fallback:", e);
+
+        const isPlaceholderFirebaseConfig = !firebaseConfig || !firebaseConfig.projectId || firebaseConfig.projectId.includes('REPLACE_WITH') || firebaseConfig.projectId.includes('YOUR_PROJECT_ID');
+        if (isPlaceholderFirebaseConfig) {
+            console.warn('Placeholder Firebase config detected. Using localStorage fallback for chat.');
             useLocalStorage = true;
+        } else {
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                console.log('✓ Firebase initialized for chat');
+            } catch (e) {
+                console.warn("Firebase initialization failed, using localStorage fallback:", e);
+                useLocalStorage = true;
+            }
         }
 
         // Context state variables
@@ -166,6 +173,10 @@
                 return true;
             } catch (error) {
                 console.error('✗ Error ensuring room collection:', error);
+                if (error.code === 'permission-denied' || error.message.includes('permission') || error.message.includes('offline') || error.message.includes('Network')) {
+                    console.warn('Switching to localStorage fallback because Firebase chat room could not be initialized.');
+                    useLocalStorage = true;
+                }
                 return false;
             }
         }
@@ -183,35 +194,18 @@
 
             try {
                 if (useLocalStorage) {
-                    // Store message in localStorage
-                    const chatKey = `chat_${chatRoomId}`;
-                    const message = {
-                        id: 'msg-' + Date.now(),
-                        sender: currentUser,
-                        senderId: currentUser,
-                        senderName: currentBuyerName,
-                        senderRole: 'buyer',
-                        text: text.trim(),
-                        timestamp: new Date().toISOString(),
-                        isRead: false
-                    };
-                    const chats = JSON.parse(localStorage.getItem(chatKey) || '[]');
-                    chats.push(message);
-                    localStorage.setItem(chatKey, JSON.stringify(chats));
-                    console.log('✓ Message saved to localStorage');
-                    saveBuyerMessageToOwnerListing(message);
-                    messageInput.value = '';
-                    messageInput.focus();
-                    loadMessagesFromLocalStorage();
-                    return true;
-                } else if (db) {
-                    // Use Firebase
+                    return saveMessageToLocal(text);
+                }
+
+                if (db) {
                     const roomReady = await ensureChatRoomExists();
-                    if (!roomReady) throw new Error("Could not initialize chat room container database reference.");
+                    if (!roomReady) {
+                        useLocalStorage = true;
+                        return saveMessageToLocal(text);
+                    }
 
                     const messagesRef = collection(db, 'chats', chatRoomId, 'messages');
                     
-                    // Add message document
                     const firebaseMessage = {
                         id: 'msg-' + Date.now(),
                         sender: currentUser,
@@ -223,53 +217,79 @@
                         isRead: false,
                     };
 
-                    await addDoc(messagesRef, {
-                        sender: firebaseMessage.sender,
-                        senderName: firebaseMessage.senderName,
-                        senderId: firebaseMessage.senderId,
-                        senderRole: firebaseMessage.senderRole,
-                        text: firebaseMessage.text,
-                        timestamp: serverTimestamp(),
-                        isRead: false,
-                    });
+                    try {
+                        await addDoc(messagesRef, {
+                            sender: firebaseMessage.sender,
+                            senderName: firebaseMessage.senderName,
+                            senderId: firebaseMessage.senderId,
+                            senderRole: firebaseMessage.senderRole,
+                            text: firebaseMessage.text,
+                            timestamp: serverTimestamp(),
+                            isRead: false,
+                        });
 
-                    // Mirror buyer message locally for dashboard listing sync and fallback access.
-                    const chatKey = `chat_${chatRoomId}`;
-                    const localChats = JSON.parse(localStorage.getItem(chatKey) || '[]');
-                    localChats.push(firebaseMessage);
-                    localStorage.setItem(chatKey, JSON.stringify(localChats));
-                    saveBuyerMessageToOwnerListing(firebaseMessage);
+                        const chatKey = `chat_${chatRoomId}`;
+                        const localChats = JSON.parse(localStorage.getItem(chatKey) || '[]');
+                        localChats.push(firebaseMessage);
+                        localStorage.setItem(chatKey, JSON.stringify(localChats));
+                        saveBuyerMessageToOwnerListing(firebaseMessage);
 
-                    // Update room metadata safely
-                    const chatRoomRef = doc(db, 'chats', chatRoomId);
-                    await updateDoc(chatRoomRef, {
-                        lastMessage: text.trim(),
-                        lastMessageTime: serverTimestamp()
-                    });
+                        const chatRoomRef = doc(db, 'chats', chatRoomId);
+                        await updateDoc(chatRoomRef, {
+                            lastMessage: text.trim(),
+                            lastMessageTime: serverTimestamp()
+                        });
 
-                    console.log('✓ Message sent via Firebase');
-                    messageInput.value = '';
-                    messageInput.focus();
-                    return true;
-                } else {
-                    throw new Error("No messaging service available");
+                        console.log('✓ Message sent via Firebase');
+                        messageInput.value = '';
+                        messageInput.focus();
+                        return true;
+                    } catch (error) {
+                        console.error('✗ Firebase send failed:', error);
+                        if (error.code === 'permission-denied' || error.message.includes('permission') || error.message.includes('offline') || error.message.includes('Network')) {
+                            console.warn('Falling back to localStorage due to Firebase send failure.');
+                            useLocalStorage = true;
+                            return saveMessageToLocal(text);
+                        }
+                        throw error;
+                    }
                 }
+
+                throw new Error("No messaging service available");
             } catch (error) {
                 console.error('✗ Error sending message workflow:', error);
-                // Check if it's a Firebase permission error
-                if (error.code === 'permission-denied' || error.message.includes('permission')) {
-                    console.warn('Firebase permission denied. Switching to localStorage fallback...');
-                    useLocalStorage = true;
-                    // Retry with localStorage
-                    return sendMessage(text);
+                if (useLocalStorage) {
+                    return false;
                 }
                 alert(`Failed to send message: ${error.message}`);
                 return false;
             } finally {
-                // Return UI input capabilities back to user 
                 messageInput.disabled = false;
                 sendBtn.disabled = !messageInput.value.trim();
             }
+        }
+
+        function saveMessageToLocal(text) {
+            const chatKey = `chat_${chatRoomId}`;
+            const message = {
+                id: 'msg-' + Date.now(),
+                sender: currentUser,
+                senderId: currentUser,
+                senderName: currentBuyerName,
+                senderRole: 'buyer',
+                text: text.trim(),
+                timestamp: new Date().toISOString(),
+                isRead: false
+            };
+            const chats = JSON.parse(localStorage.getItem(chatKey) || '[]');
+            chats.push(message);
+            localStorage.setItem(chatKey, JSON.stringify(chats));
+            console.log('✓ Message saved to localStorage');
+            saveBuyerMessageToOwnerListing(message);
+            messageInput.value = '';
+            messageInput.focus();
+            loadMessagesFromLocalStorage();
+            return true;
         }
 
         function saveBuyerMessageToOwnerListing(message) {
